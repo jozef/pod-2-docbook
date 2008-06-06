@@ -1,5 +1,5 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl Pod-DocBook.t'
+# `make test'. After `make install' it should work as `perl Pod-2-DocBook.t'
 
 use strict;
 use warnings;
@@ -7,7 +7,7 @@ use warnings;
 use Test;
 BEGIN { plan tests => 18 };
 
-use Pod::DocBook;
+use Pod::2::DocBook;
 ok 1;
 
 #-----------------------------------------------------------------------
@@ -19,7 +19,7 @@ my @samples = qw(head paragraphs indent lists docbook table formatting_codes
 		 e_item e_mismatched_end e_no_end e_colspec);
 
 foreach my $name (@samples) {
-    my $parser = Pod::DocBook->new (doctype           => 'section',
+    my $parser = Pod::2::DocBook->new (doctype           => 'section',
 				    title             => "$name.pod",
 				    fix_double_quotes => 1,
 				    header            => 1,
@@ -36,7 +36,7 @@ foreach my $name (@samples) {
 # test header option
 #-----------------------------------------------------------------------
 
-Pod::DocBook->new (doctype           => 'section',
+Pod::2::DocBook->new (doctype           => 'section',
 		   title             => "no_header.pod",
 		   fix_double_quotes => 1,
 		   header            => 0,

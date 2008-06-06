@@ -7,7 +7,7 @@ Text before
 <section>
 <sectioninfo>
 <abstract>
-<para>A sample of markup that Pod::DocBook can't produce</para>
+<para>A sample of markup that Pod::2::DocBook can't produce</para>
 </abstract>
 </sectioninfo>
 <title>A simple section</title>

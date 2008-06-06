@@ -2,8 +2,8 @@ use 5.006001;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME              => 'Pod::DocBook',
-    VERSION_FROM      => 'lib/Pod/DocBook.pm',
+    NAME              => 'Pod::2::DocBook',
+    VERSION_FROM      => 'lib/Pod/2/DocBook.pm',
     PREREQ_PM         => { Digest::MD5      => 0,
 			   Pod::Parser      => 0,
 			   Pod::ParseLink   => 0,

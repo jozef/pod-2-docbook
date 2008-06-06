@@ -1,9 +1,9 @@
-=head1 Pod-DocBook version 1.0
+=head1 Pod-2-DocBook version 1.0
 
-This is a rewrite of Pod::DocBook; version 0.6 and earlier were
-written by a different author (see L<Pod::DocBook/AUTHOR>).
+This is a rewrite of Pod::2::DocBook; version 0.6 and earlier were
+written by a different author (see L<Pod::2::DocBook/AUTHOR>).
 
-Pod::DocBook is a module for translating Pod-formatted documents to
+Pod::2::DocBook is a module for translating Pod-formatted documents to
 DocBook 4.2 SGML (see L<http://www.docbook.org/>).  The B<pod2docbook>
 program is a simple driver for the module.
 

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Getopt::Long;
-use Pod::DocBook;
+use Pod::2::DocBook;
 use Pod::Usage;
 
 my $doctype = 'section';
@@ -26,7 +26,7 @@ pod2usage unless $spaces =~ /^\d+$/;
 
 if (@ARGV == 0) {
     $title = '' unless defined $title;
-    my $parser = Pod::DocBook->new (title => $title,
+    my $parser = Pod::2::DocBook->new (title => $title,
 				    doctype => $doctype,
 				    fix_double_quotes => $double_quotes,
 				    header => ! $no_header,
@@ -38,7 +38,7 @@ else {
     my ($infile, $outfile) = @ARGV;
 
     ($title) = $infile =~ m!([^/]+)\z! unless defined $title;
-    my $parser = Pod::DocBook->new (title => $title,
+    my $parser = Pod::2::DocBook->new (title => $title,
 				    doctype => $doctype,
 				    fix_double_quotes => $double_quotes,
 				    header => ! $no_header,
@@ -69,8 +69,8 @@ pod2docbook [B<--help>]
 
 B<pod2docbook> converts files from pod format (see L<perlpod>) to
 DocBook 4.2 SGML (see L<http://www.docbook.org/>).  The program itself
-is merely a driver for the Pod::DocBook class; if you're interested in
-details of pod-to-SGML translation see L<Pod::DocBook>.
+is merely a driver for the Pod::2::DocBook class; if you're interested in
+details of pod-to-SGML translation see L<Pod::2::DocBook>.
 
 =head1 OPTIONS AND ARGUMENTS
 
@@ -98,7 +98,7 @@ the default is 2.
 =item [B<--fix-double-quotes>]
 
 Replace pairs of double quotes in regular paragraphs with <quote> and
-</quote> (see L<Pod::DocBook> for details).
+</quote> (see L<Pod::2::DocBook> for details).
 
 =item [B<--no-header>]
 
@@ -118,7 +118,7 @@ is used for output.
 
 =head1 SEE ALSO
 
-L<perlpod>, L<Pod::DocBook>
+L<perlpod>, L<Pod::2::DocBook>
 
 =head1 AUTHOR
 

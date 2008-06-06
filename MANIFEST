@@ -3,9 +3,9 @@ MANIFEST
 META.yml
 Makefile.PL
 README
-lib/Pod/DocBook.pm
+lib/Pod/2/DocBook.pm
 pod2docbook
-t/Pod-DocBook.t
+t/Pod-2-DocBook.t
 t/docbook.pod
 t/docbook.sgml
 t/e_colspec.pod

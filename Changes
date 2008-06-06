@@ -4,7 +4,7 @@
 
 =item Tue 16 Mar 2004
 
-Released Pod::DocBook 1.2
+Released Pod::2::DocBook 1.2
 
 Added missing test files
 
@@ -14,7 +14,7 @@ Added missing test files
 
 =item Tue 16 Mar 2004
 
-Released Pod::DocBook 1.1
+Released Pod::2::DocBook 1.1
 
 =item Wed 3 Mar 2004
 
@@ -47,11 +47,11 @@ regions (thanks to Garry Williams)
 
 =item Thu 19 Feb 2004
 
-released Pod::DocBook 1.0
+released Pod::2::DocBook 1.0
 
 =item Tue 30 Dec 2003
 
-started rewrite of Pod::DocBook
+started rewrite of Pod::2::DocBook
 
 specialize Pod::Parser instead of parsing directly
 
@@ -59,7 +59,7 @@ emit formatted DocBook 4.2 SGML
 
 =back
 
-=head1  OLD -- Pod::DocBook 0.6 and earlier
+=head1  OLD -- Pod::2::DocBook 0.6 and earlier
 
   0.0.6
   =====
