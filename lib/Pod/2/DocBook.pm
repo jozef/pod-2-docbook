@@ -11,7 +11,7 @@ use Text::ParseWords;
 use Text::Wrap;
 
 our @ISA     = qw(Pod::Parser);
-our $VERSION = '0.01';
+our $VERSION = '0.01_01';
 
 #----------------------------------------------------------------------
 # overridden Pod::Parser methods
@@ -1066,7 +1066,7 @@ Pod::2::DocBook - Convert Pod data to DocBook SGML
 
   use Pod::2::DocBook;
   my $parser = Pod::2::DocBook->new (title             => 'My Article',
-                                  doctype           => 'article',
+                                     doctype           => 'article',
 				  fix_double_quotes => 1,
 				  spaces            => 3);
 
@@ -1746,9 +1746,13 @@ Pod::2::DocBook, which was later maintained by Jan Iven
 <jan.iven@cern.ch>.  That module was based on the original L<pod2html>
 by Tom Christiansen <tchrist@mox.perl.com>.
 
-Nandu Shah <nandu@zvolve.com> wrote this Pod::2::DocBook, which is
+Nandu Shah <nandu@zvolve.com> wrote Pod::DocBook, which is
 unrelated to the previous module (even though they both perform the
 same function).
+
+Jozef Kutej <jkutej@cpan.org> renamed the module to Pod::2::DocBook
+because Nandus version was buried in the CPAN archive as an
+"UNAUTHORIZED RELEASE".
 
 =head1 COPYRIGHT
 
