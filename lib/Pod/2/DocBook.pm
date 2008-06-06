@@ -11,7 +11,7 @@ use Text::ParseWords;
 use Text::Wrap;
 
 our @ISA     = qw(Pod::Parser);
-our $VERSION = '0.01_01';
+our $VERSION = '0.01_02';
 
 #----------------------------------------------------------------------
 # overridden Pod::Parser methods
@@ -1748,7 +1748,7 @@ by Tom Christiansen <tchrist@mox.perl.com>.
 
 Nandu Shah <nandu@zvolve.com> wrote Pod::DocBook, which is
 unrelated to the previous module (even though they both perform the
-same function).
+same function). (L<http://search.cpan.org/~nandu/Pod-DocBook-1.2/>)
 
 Jozef Kutej <jkutej@cpan.org> renamed the module to Pod::2::DocBook
 because Nandus version was buried in the CPAN archive as an
