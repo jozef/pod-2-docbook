@@ -1752,7 +1752,7 @@ same function).
 
 Jozef Kutej <jkutej@cpan.org> renamed the module to Pod::2::DocBook
 because Nandus version was buried in the CPAN archive as an
-"UNAUTHORIZED RELEASE".
+"UNAUTHORIZED RELEASE". Still hoping to get in contact with Nandu...
 
 =head1 COPYRIGHT
 
