@@ -27,9 +27,7 @@ foreach my $name (@samples) {
 
     $parser->parse_from_file ("t/$name.pod", "t/test-$name.out");
 
-    ok (check ("t/$name.sgml", "t/test-$name.out"), 1,
-	"t/test-$name.out differs from t/$name.sgml") &&
-	  unlink "t/test-$name.out";
+    check_ok($name);
 }
 
 #-----------------------------------------------------------------------
@@ -43,10 +41,21 @@ Pod::2::DocBook->new (doctype           => 'section',
 		   spaces            => 2)
             ->parse_from_file ("t/no_header.pod", "t/test-no_header.out");
 
-ok (check ("t/no_header.sgml", "t/test-no_header.out"), 1,
-    "t/test-no_header.out differs from t/no_header.sgml") &&
-  unlink "t/test-no_header.out";
+check_ok("no_header");
 
+# Calls check(), and unlinks temp files on success.
+
+sub check_ok
+{
+    my ($name) = @_;
+
+    ok(
+        check( "t/$name.sgml", "t/test-$name.out" ), 1,
+        "t/test-$name.out differs from t/$name.sgml"
+    ) && unlink("t/test-$name.out");
+}
+
+# Checks files for differences.
 
 sub check
 {
