@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Test;
-BEGIN { plan tests => 18 };
+BEGIN { plan tests => 19 };
 
 use Pod::2::DocBook;
 ok 1;
@@ -16,7 +16,8 @@ ok 1;
 
 my @samples = qw(head paragraphs indent lists docbook table formatting_codes
 		 e_command e_nested_fc e_unknown_fc e_empty_l e_escape
-		 e_item e_mismatched_end e_no_end e_colspec);
+		 e_item e_mismatched_end e_no_end e_colspec
+		 for);
 
 foreach my $name (@samples) {
     my $parser = Pod::2::DocBook->new (doctype           => 'section',

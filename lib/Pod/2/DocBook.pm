@@ -89,6 +89,25 @@ sub command {
 
     $paragraph =~ s/\s+$//s;
     $paragraph = $parser->interpolate ($paragraph, $line_num);
+
+    # For blocks must be considered before we escape entries, otherwise
+    # docbook markup will get mangled.
+
+    if ($command eq 'for') {
+	$parser->_transition ('for');
+	if ($paragraph =~ /^(:\S+|docbook)/) {
+	    $paragraph =~ s/$1\s+//;
+	    print $out_fh $paragraph, "\n";
+	}
+	# If we've processed a docbook 'for', then we're done.
+	# If we've process any other 'for', then it wasn't
+	# intended for us, and we're also done.
+	return;
+    }
+
+    # Now escape SGML-escape our text, and figure out what to do
+    # with it.
+
     $paragraph = _fix_chars ($paragraph);
 
     if ($command =~ /^head[1-4]/) {
@@ -103,14 +122,6 @@ sub command {
 
     elsif ($command eq 'end') {
 	$parser->_transition ("end $paragraph");
-    }
-
-    elsif ($command eq 'for') {
-	$parser->_transition ('for');
-	if ($paragraph =~ /^(:\S+|docbook)/) {
-	    $paragraph =~ s/$1\s+//;
-	    print $out_fh $paragraph, "\n";
-	}
     }
 
     elsif ($command eq 'over') {
