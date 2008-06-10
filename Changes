@@ -11,6 +11,8 @@ Updated t/Pod-2-Docbook.t for more streamlined testing.
 
 Corrected POD errors in Changes file.
 
+=back
+
 =head1 v1.2
 
 =over
