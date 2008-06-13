@@ -17,14 +17,12 @@ our $VERSION = '0.01_02';
 # overridden Pod::Parser methods
 #----------------------------------------------------------------------
 
-sub initialize
-{
+sub initialize {
     $_[0]->errorsub ('error_msg');
     $_[0]->{'Pod::2::DocBook::errors'} = [];
 }
 
-sub begin_pod
-{
+sub begin_pod {
     my ($parser) = @_;
     my $out_fh = $parser->output_handle ();
 
@@ -44,24 +42,22 @@ sub begin_pod
     $parser->{indentlevel} = 1;
 
     if ($parser->{doctype} eq 'refentry') {
-    print $out_fh join ('',
-                 "<refentry>\n",
-                 $parser->_indent (),
-                 "<refmeta>\n",
-                 $parser->_current_indent (),
-                 "<refentrytitle>$parser->{title}",
-                 "</refentrytitle>\n",
-                 $parser->_outdent (),
-                 "</refmeta>\n");
+        print $out_fh join ('',
+                     "<refentry>\n",
+                     $parser->_indent (),
+                     "<refmeta>\n",
+                     $parser->_current_indent (),
+                     "<refentrytitle>$parser->{title}",
+                     "</refentrytitle>\n",
+                     $parser->_outdent (),
+                     "</refmeta>\n");
     }
-
     else {
-    print $out_fh "<$parser->{doctype}><title>$parser->{title}</title>\n";
+        print $out_fh "<$parser->{doctype}><title>$parser->{title}</title>\n";
     }
 }
 
-sub end_pod
-{
+sub end_pod {
     my ($parser) = @_;
     my $out_fh = $parser->output_handle ();
 
@@ -70,14 +66,14 @@ sub end_pod
     # end document
     print $out_fh "</$parser->{doctype}>\n";
     if (@{$parser->{'Pod::2::DocBook::errors'}}) {
-    print $out_fh "\n<!--\n     POD ERRORS:\n";
-    foreach my $msg (@{$parser->{'Pod::2::DocBook::errors'}}) {
-        chomp $msg;  # Pod::Parser hands us newlines in errors
-
-        print $out_fh wrap ("       ", "         ", "o $msg"), "\n";
-    }
-
-    print $out_fh "-->\n";
+        print $out_fh "\n<!--\n     POD ERRORS:\n";
+        foreach my $msg (@{$parser->{'Pod::2::DocBook::errors'}}) {
+            chomp $msg;  # Pod::Parser hands us newlines in errors
+    
+            print $out_fh wrap ("       ", "         ", "o $msg"), "\n";
+        }
+    
+        print $out_fh "-->\n";
     }
 }
 
@@ -94,15 +90,15 @@ sub command {
     # docbook markup will get mangled.
 
     if ($command eq 'for') {
-    $parser->_transition ('for');
-    if ($paragraph =~ /^(:\S+|docbook)/) {
-        $paragraph =~ s/$1\s+//;
-        print $out_fh $paragraph, "\n";
-    }
-    # If we've processed a docbook 'for', then we're done.
-    # If we've process any other 'for', then it wasn't
-    # intended for us, and we're also done.
-    return;
+        $parser->_transition ('for');
+        if ($paragraph =~ /^(:\S+|docbook)/) {
+            $paragraph =~ s/$1\s+//;
+            print $out_fh $paragraph, "\n";
+        }
+        # If we've processed a docbook 'for', then we're done.
+        # If we've process any other 'for', then it wasn't
+        # intended for us, and we're also done.
+        return;
     }
 
     # Now escape SGML-escape our text, and figure out what to do
@@ -111,37 +107,31 @@ sub command {
     $paragraph = _fix_chars ($paragraph);
 
     if ($command =~ /^head[1-4]/) {
-    $parser->_transition ($command);
-    $parser->_handle_head ($command, $paragraph, $line_num);
+        $parser->_transition ($command);
+        $parser->_handle_head ($command, $paragraph, $line_num);
     }
-
     elsif ($command eq 'begin') {
-    $parser->_transition ("begin $paragraph");
-    push (@{$parser->{'Pod::2::DocBook::state'}}, "begin $paragraph");
+        $parser->_transition ("begin $paragraph");
+        push (@{$parser->{'Pod::2::DocBook::state'}}, "begin $paragraph");
     }
-
     elsif ($command eq 'end') {
-    $parser->_transition ("end $paragraph");
+        $parser->_transition ("end $paragraph");
     }
-
     elsif ($command eq 'over') {
-    $parser->_transition ('over');
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'over';
+        $parser->_transition ('over');
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'over';
     }
-
     elsif ($command eq 'item') {
-    $parser->_transition ('item');
-    $parser->_handle_item ($paragraph, $line_num);
+        $parser->_transition ('item');
+        $parser->_handle_item ($paragraph, $line_num);
     }
-
     elsif ($command =~ /^back/) {
-    $parser->_transition ('back');
+        $parser->_transition ('back');
     }
-
     else {
-    my $file = $parser->input_file ();
-    $parser->error_msg ("unknown command `$command' at",
-                "line $line_num in file $file");
+        my $file = $parser->input_file ();
+        $parser->error_msg ("unknown command `$command' at",
+                    "line $line_num in file $file");
     }
 }
 
@@ -155,114 +145,106 @@ sub textblock {
     $paragraph =~ s/\s+$//s unless $state eq 'begin docbook';
 
     unless ($state eq 'begin docbook' || $state eq 'begin table') {
-    $paragraph = $parser->interpolate ($paragraph, $line_num);
-    $paragraph = _fix_chars ($paragraph);
+        $paragraph = $parser->interpolate ($paragraph, $line_num);
+        $paragraph = _fix_chars ($paragraph);
     }
 
     if ($state eq 'name') {
-    my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
-
-    $para_out = join ('',
-              $parser->_indent (),
-              "<refnamediv>\n",
-              $parser->_current_indent (),
-              "<refname>$name</refname>\n",
-              "<refpurpose>$purpose</refpurpose>\n",
-              $parser->_outdent (),
-              "</refnamediv>\n");
+        my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
+    
+        $para_out = join ('',
+                  $parser->_indent (),
+                  "<refnamediv>\n",
+                  $parser->_current_indent (),
+                  "<refname>$name</refname>\n",
+                  "<refpurpose>$purpose</refpurpose>\n",
+                  $parser->_outdent (),
+                  "</refnamediv>\n");
     }
-
     elsif ($state eq 'synopsis+') {
-    $para_out = join ('',
-              $parser->_indent (),
-              "<refsynopsisdiv>\n",
-              "<synopsis>$paragraph</synopsis>\n");
-
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis';
+        $para_out = join ('',
+                  $parser->_indent (),
+                  "<refsynopsisdiv>\n",
+                  "<synopsis>$paragraph</synopsis>\n");
+    
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis';
     }
-
     elsif ($state eq 'synopsis') {
-    $para_out = "<synopsis>$paragraph</synopsis>\n";
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        $para_out = "<synopsis>$paragraph</synopsis>\n";
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state eq 'begin docbook') {
-    push @{$parser->{'Pod::2::DocBook::dbpara'}}, $paragraph;
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        push @{$parser->{'Pod::2::DocBook::dbpara'}}, $paragraph;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state eq 'begin table') {
-    $parser->_handle_table ($paragraph, $line_num);
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        $parser->_handle_table ($paragraph, $line_num);
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state =~ /^begin [^:]/) {
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state eq 'over') {
-    local $Text::Wrap::huge  = 'overflow';   # don't break tags
-
-    $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
-
-    $para_out = join ('',
-              $parser->_indent (),
-              "<blockquote>\n",
-              $parser->_indent (),
-              "<para>\n",
-              wrap (' ' x ($parser->{spaces} *
-                       $parser->{indentlevel}),
-                ' ' x ($parser->{spaces} *
-                       $parser->{indentlevel}),
-                $paragraph),
-              "\n",
-              $parser->_outdent (),
-              "</para>\n");
-
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'indent';
+        local $Text::Wrap::huge  = 'overflow';   # don't break tags
+    
+        $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
+    
+        $para_out = join ('',
+                  $parser->_indent (),
+                  "<blockquote>\n",
+                  $parser->_indent (),
+                  "<para>\n",
+                  wrap (' ' x ($parser->{spaces} *
+                           $parser->{indentlevel}),
+                    ' ' x ($parser->{spaces} *
+                           $parser->{indentlevel}),
+                    $paragraph),
+                  "\n",
+                  $parser->_outdent (),
+                  "</para>\n");
+    
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'indent';
     }
-
     else {
-    local $Text::Wrap::huge = 'overflow';   # don't break tags
-
-    print $out_fh "]]></screen>\n" if $state eq 'verbatim';
-
-    $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
-
-    $para_out = join ('',
-              $parser->_indent (),
-              "<para>\n",
-              wrap (' ' x ($parser->{spaces} *
-                       $parser->{indentlevel}),
-                ' ' x ($parser->{spaces} *
-                       $parser->{indentlevel}),
-                $paragraph),
-              "\n",
-              $parser->_outdent (),
-              "</para>\n");
-
-    $state =~ s/\+$//;
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state
-      unless ($state eq 'verbatim' || $state eq '');
+        local $Text::Wrap::huge = 'overflow';   # don't break tags
+    
+        print $out_fh "]]></screen>\n" if $state eq 'verbatim';
+    
+        $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
+    
+        $para_out = join ('',
+                  $parser->_indent (),
+                  "<para>\n",
+                  wrap (' ' x ($parser->{spaces} *
+                           $parser->{indentlevel}),
+                    ' ' x ($parser->{spaces} *
+                           $parser->{indentlevel}),
+                    $paragraph),
+                  "\n",
+                  $parser->_outdent (),
+                  "</para>\n");
+    
+        $state =~ s/\+$//;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state
+          unless ($state eq 'verbatim' || $state eq '');
     }
 
     # fix double quotes in ordinary paragraphs if asked to
-    if ($state !~ /^begin/ &&
-    $parser->{fix_double_quotes} && $para_out =~ /"/) {
-    my @protected;
-    while ($para_out =~ m#(<[^>"]*".+?>)#s) {
-        # don't modify things that look like tags with quotes inside
-        my $protect = $1 || $2;
-        my $replace = quotemeta ($protect);
-
-        $para_out =~ s/$replace/\376/;
-        push @protected, $protect;
-    }
-
-    $para_out =~ s!"(.+?)"!<quote>$1</quote>!sg;
-    foreach my $protect (@protected) {
-        $para_out =~ s/\376/$protect/;
-    }
+    if ($state !~ /^begin/ && $parser->{fix_double_quotes} && $para_out =~ /"/) {
+        my @protected;
+        while ($para_out =~ m#(<[^>"]*".+?>)#s) {
+            # don't modify things that look like tags with quotes inside
+            my $protect = $1 || $2;
+            my $replace = quotemeta ($protect);
+    
+            $para_out =~ s/$replace/\376/;
+            push @protected, $protect;
+        }
+    
+        $para_out =~ s!"(.+?)"!<quote>$1</quote>!sg;
+        foreach my $protect (@protected) {
+            $para_out =~ s/\376/$protect/;
+        }
     }
 
     print $out_fh $para_out;
@@ -278,15 +260,15 @@ sub verbatim {
 
     @lines = split (/\n/, $paragraph);
     foreach my $line (@lines) {
-    # expand tabs (see perldoc -q 'expand tabs')
-    1 while $line =~ s/\t+/' ' x (length($&) * 8 - length($`) % 8)/e;
-
-    # find the minimum-length whitespace leader for this paragraph
-    my ($leader) = $line =~ /^( +)/;
-    $leader ||= '';
-    $min_leader  = $leader
-      if (!defined $min_leader ||
-          length ($leader) < length ($min_leader));
+        # expand tabs (see perldoc -q 'expand tabs')
+        1 while $line =~ s/\t+/' ' x (length($&) * 8 - length($`) % 8)/e;
+    
+        # find the minimum-length whitespace leader for this paragraph
+        my ($leader) = $line =~ /^( +)/;
+        $leader ||= '';
+        $min_leader  = $leader
+          if (!defined $min_leader ||
+              length ($leader) < length ($min_leader));
     }
 
     $paragraph = join ("\n", @lines);
@@ -296,70 +278,62 @@ sub verbatim {
     $paragraph =~ s/^$min_leader//mg;
 
     if (!defined $state) {
-    print $out_fh $parser->_current_indent (),
-      "<screen><![CDATA[$paragraph";
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
+        print $out_fh $parser->_current_indent (),
+          "<screen><![CDATA[$paragraph";
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
     }
-
     elsif ($state eq 'name') {
-    my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
-
-    print $out_fh join ('',
-                $parser->_indent (),
-                "refnamediv>\n",
-                $parser->_current_indent (),
-                "<refname>$name</refname>\n",
-                $parser->_current_indent (),
-                "<refpurpose>$purpose</refpurpose>\n",
-                $parser->_outdent (),
-                "</refnamediv>\n");
+        my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
+    
+        print $out_fh join ('',
+                    $parser->_indent (),
+                    "refnamediv>\n",
+                    $parser->_current_indent (),
+                    "<refname>$name</refname>\n",
+                    $parser->_current_indent (),
+                    "<refpurpose>$purpose</refpurpose>\n",
+                    $parser->_outdent (),
+                    "</refnamediv>\n");
     }
-
     elsif ($state eq 'synopsis+') {
-    print $out_fh join ('',
-                $parser->_indent (),
-                "<refsynopsisdiv>\n",
-                "<synopsis>$paragraph</synopsis>\n");
-
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis';
+        print $out_fh join ('',
+                    $parser->_indent (),
+                    "<refsynopsisdiv>\n",
+                    "<synopsis>$paragraph</synopsis>\n");
+    
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis';
     }
-
     elsif ($state eq 'synopsis') {
-    print $out_fh "<synopsis>$paragraph</synopsis>\n";
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        print $out_fh "<synopsis>$paragraph</synopsis>\n";
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state eq 'begin docbook') {
-    push @{$parser->{'Pod::2::DocBook::dbpara'}}, $paragraph;
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        push @{$parser->{'Pod::2::DocBook::dbpara'}}, $paragraph;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state =~ /^begin [^:]/) {
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     elsif ($state eq 'over') {
-    print $out_fh join ('',
-                $parser->_indent (),
-                "<blockquote>\n",
-                $parser->_current_indent (),
-                "<screen><![CDATA[$paragraph");
-
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'indent';
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
+        print $out_fh join ('',
+                    $parser->_indent (),
+                    "<blockquote>\n",
+                    $parser->_current_indent (),
+                    "<screen><![CDATA[$paragraph");
+    
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'indent';
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
     }
-
     elsif ($state eq 'verbatim') {
-    print $out_fh "\n\n$paragraph";
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        print $out_fh "\n\n$paragraph";
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
     }
-
     else {
-    print $out_fh $parser->_current_indent (),
-      "<screen><![CDATA[$paragraph";
-    $state =~ s/\+$//;
-    push @{$parser->{'Pod::2::DocBook::state'}}, $state;
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
+        print $out_fh $parser->_current_indent (),
+          "<screen><![CDATA[$paragraph";
+        $state =~ s/\+$//;
+        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'verbatim';
     }
 }
 
@@ -370,13 +344,13 @@ sub interior_sequence {
 
     # nothing is ever allowed to be nested inside of E<>, or Z<>
     if (my $parent = $seq->nested ()) {
-    if ($parent->cmd_name () eq 'E' || $parent->cmd_name () eq 'Z') {
-        my ($file, $line) = $seq->file_line ();
-        $parser->error_msg ("formatting code `$command' nested within",
-                "`" . $parent->cmd_name () . "'",
-                "at line $line in file $file");
-        return $seq->raw_text ();
-    }
+        if ($parent->cmd_name () eq 'E' || $parent->cmd_name () eq 'Z') {
+            my ($file, $line) = $seq->file_line ();
+            $parser->error_msg ("formatting code `$command' nested within",
+                    "`" . $parent->cmd_name () . "'",
+                    "at line $line in file $file");
+            return $seq->raw_text ();
+        }
     }
 
     $argument = '' unless defined $argument;
@@ -387,58 +361,49 @@ sub interior_sequence {
     # de-protected in _fix_chars ()
 
     if ($command eq 'I') {
-    $string = qq!<emphasis\37632\377role="italic">$argument</emphasis>!;
+        $string = qq!<emphasis\37632\377role="italic">$argument</emphasis>!;
     }
-
     elsif ($command eq 'B') {
-    $string = qq!<emphasis\37632\377role="bold">$argument</emphasis>!;
+        $string = qq!<emphasis\37632\377role="bold">$argument</emphasis>!;
     }
-
     elsif ($command eq 'C') {
-    $string = qq!<literal\37632\377role="code">! .
-      "<![CDATA[$argument]]></literal>";
+        $string = qq!<literal\37632\377role="code">! .
+          "<![CDATA[$argument]]></literal>";
     }
-
     elsif ($command eq 'L') {
-    $string = $parser->_handle_L ($argument, $seq);
+        $string = $parser->_handle_L ($argument, $seq);
     }
-
     elsif ($command eq 'E') {
-    $string = $parser->_handle_E ($argument, $seq);
+        $string = $parser->_handle_E ($argument, $seq);
     }
-
     elsif ($command eq 'F') {
-    $string = "<filename>$argument</filename>";
+        $string = "<filename>$argument</filename>";
     }
-
     elsif ($command eq 'S') {
-    $argument =~ s/\s(?![^<]*>)/&nbsp;/g;
-    $string = $argument;
+        $argument =~ s/\s(?![^<]*>)/&nbsp;/g;
+        $string = $argument;
     }
-
     elsif ($command eq 'X') {
-    $string = "<indexterm><primary>$argument</primary></indexterm>";
+        $string = "<indexterm><primary>$argument</primary></indexterm>";
     }
-
     elsif ($command eq 'Z') {
-    $string = '';
+        $string = '';
     }
-
     else {
-    my ($file, $line) = $seq->file_line ();
-    $parser->error_msg ("unknown formatting code `$command' at line",
-                "in file $file");
-    $string = $seq->raw_text ();
+        my ($file, $line) = $seq->file_line ();
+        $parser->error_msg ("unknown formatting code `$command' at line",
+                    "in file $file");
+        $string = $seq->raw_text ();
     }
 
     # protect &, <, and > characters from later processing
     # I got this from the first edition Camel Book
     unless ($seq->nested ()) {
-    # just do this once, at the top of a subtree so we can
-    # report more meaningful errors along the way
-    foreach my $char ('&', '<', '>') {
-        $string =~ s/$char/"\376" . ord ($char) . "\377"/eg;
-    }
+        # just do this once, at the top of a subtree so we can
+        # report more meaningful errors along the way
+        foreach my $char ('&', '<', '>') {
+            $string =~ s/$char/"\376" . ord ($char) . "\377"/eg;
+        }
     }
 
     return $string;
@@ -448,8 +413,7 @@ sub interior_sequence {
 # other public methods
 #----------------------------------------------------------------------
 
-sub error_msg
-{
+sub error_msg {
     my $parser = shift;
 
     push (@{$parser->{'Pod::2::DocBook::errors'}}, join (' ', @_));
@@ -459,27 +423,23 @@ sub error_msg
 # private methods and helper functions
 #----------------------------------------------------------------------
 
-sub _indent
-{
+sub _indent {
     my ($parser) = @_;
     return (' ' x ($parser->{spaces} * $parser->{indentlevel}++));
 }
 
-sub _outdent
-{
+sub _outdent {
     my ($parser) = @_;
     return (' ' x (--$parser->{indentlevel} * $parser->{spaces}));
 }
 
-sub _current_indent
-{
+sub _current_indent {
     my $parser = shift;
 
     return ' ' x ($parser->{spaces} * $parser->{indentlevel});
 }
 
-sub _make_id
-{
+sub _make_id {
     my $parser = shift;
     my $string = join ('-', $parser->{doctype}, $parser->{title}, $_[0]);
 
@@ -489,19 +449,18 @@ sub _make_id
     return 'ID-' . md5_hex ($string);
 }
 
-sub _handle_L
-{
+sub _handle_L {
     my ($parser, $argument, $seq) = @_;
     my $node = $seq;
 
     # look all the way up the subtree to see if any ancestor is an 'L'
     while ($node = $node->nested ()) {
-    if ($node->cmd_name () eq 'L') {
-        my ($file, $line) = $seq->file_line ();
-        $parser->error_msg ("formatting code `L' nested within `L' at",
-                "line $line in file $file");
-        return $seq->raw_text ();
-    }
+        if ($node->cmd_name () eq 'L') {
+            my ($file, $line) = $seq->file_line ();
+            $parser->error_msg ("formatting code `L' nested within `L' at",
+                    "line $line in file $file");
+            return $seq->raw_text ();
+        }
     }
 
     # the substring "\37632\377" is a space character protected
@@ -512,128 +471,106 @@ sub _handle_L
     my ($text, $inferred, $name, $section, $type) = parselink ($argument);
 
     if ($type eq 'url') {
-    return qq!<ulink\37632\377url="$inferred">$inferred</ulink>!;
+        return qq!<ulink\37632\377url="$inferred">$inferred</ulink>!;
     }
-
     else {
-    # types 'man' and 'pod' are handled the same way
-    if (defined $section && ! defined $name) {
-        my $id = $parser->_make_id ($section);
-
-        $section = $text if defined $text;
-        return (qq!<link\37632\377linkend="$id"><quote>$section! .
-            "</quote></link>");
-    }
-
-    elsif (defined $text) {
-        return $text;
-    }
-
-    elsif (defined $name) {
-        my $string;
-        if ($name =~ /(.+?)\((.+)\)/) {
-        $string = $parser->_manpage ($1, $2);
+        # types 'man' and 'pod' are handled the same way
+        if (defined $section && ! defined $name) {
+            my $id = $parser->_make_id ($section);
+    
+            $section = $text if defined $text;
+            return (qq!<link\37632\377linkend="$id"><quote>$section! .
+                "</quote></link>");
         }
-
+        elsif (defined $text) {
+            return $text;
+        }
+        elsif (defined $name) {
+            my $string;
+            if ($name =~ /(.+?)\((.+)\)/) {
+                $string = $parser->_manpage ($1, $2);
+            }    
+            else {
+                $string = $parser->_manpage ($name);
+            }
+    
+            if (defined $section) {
+                return "<quote>$section</quote> in $string";
+            }
+            else {
+                return $string;
+            }
+        }    
         else {
-        $string = $parser->_manpage ($name);
+            my ($file, $line) = $seq->file_line ();
+            $parser->error_msg ("empty L&lt;&gt; at line",
+                    "$line in file $file\n");
+            return $seq->raw_text ();
         }
-
-        if (defined $section) {
-        return "<quote>$section</quote> in $string";
-        }
-
-        else {
-        return $string;
-        }
-    }
-
-    else {
-        my ($file, $line) = $seq->file_line ();
-        $parser->error_msg ("empty L&lt;&gt; at line",
-                "$line in file $file\n");
-        return $seq->raw_text ();
-    }
     }
 }
 
-sub _handle_E
-{
+sub _handle_E {
     my ($parser, $argument, $seq) = @_;
 
     if ($argument !~ /\A\w+\z/) {
-    my ($file, $line) = $seq->file_line ();
-    $parser->error_msg ("invalid escape `$argument'",
-                "at line $line in file $file\n");
-    return $seq->raw_text ();
+        my ($file, $line) = $seq->file_line ();
+        $parser->error_msg ("invalid escape `$argument'",
+                    "at line $line in file $file\n");
+        return $seq->raw_text ();
     }
-
     elsif ($argument eq 'verbar') {
-    return '|';
+        return '|';
     }
-
     elsif ($argument eq 'sol') {
-    return '/';
+        return '/';
     }
-
     elsif ($argument eq 'lchevron' || $argument eq 'laquo') {
-    return '&#171;';
+        return '&#171;';
     }
-
     elsif ($argument eq 'rchevron' || $argument eq 'raquo') {
-    return '&#187;';
+        return '&#187;';
     }
-
     elsif ($argument =~ /^0x/) {
-    return ('&#' . hex ($argument) . ';');
+        return ('&#' . hex ($argument) . ';');
     }
-
     elsif ($argument =~ /^0/) {
-    return ('&#' . oct ($argument) . ';');
+        return ('&#' . oct ($argument) . ';');
     }
-
     elsif ($argument =~ /^\d+$/) {
-    return "&#$argument;";
+        return "&#$argument;";
     }
-
     else {
-    return "&$argument;";
+        return "&$argument;";
     }
 }
 
-sub _handle_head
-{
+sub _handle_head {
     my ($parser, $command, $paragraph, $line_num) = @_;
     my $out_fh        = $parser->output_handle ();
 
-    if ($parser->{doctype} eq 'refentry' &&
-    $command eq 'head1' && $paragraph eq 'NAME') {
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'name';
+    if ($parser->{doctype} eq 'refentry' && $command eq 'head1' && $paragraph eq 'NAME') {
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'name';
     }
-
-    elsif ($parser->{doctype} eq 'refentry' &&
-       $command eq 'head1' && $paragraph eq 'SYNOPSIS') {
-    push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis+';
+    elsif ($parser->{doctype} eq 'refentry' && $command eq 'head1' && $paragraph eq 'SYNOPSIS') {
+        push @{$parser->{'Pod::2::DocBook::state'}}, 'synopsis+';
     }
-
     else {
-    push @{$parser->{'Pod::2::DocBook::state'}}, "$command+";
-    my $id = $parser->_make_id ($paragraph);
-
-    if ($parser->{doctype} eq 'refentry') {
-        print $out_fh $parser->_indent (),
-          qq!<refsection id="$id"><title>$paragraph</title>\n!;
-    }
-
-    else {
-        print $out_fh $parser->_indent (),
-          qq!<section id="$id"><title>$paragraph</title>\n!;
-    }
+        push @{$parser->{'Pod::2::DocBook::state'}}, "$command+";
+        my $id = $parser->_make_id ($paragraph);
+    
+        if ($parser->{doctype} eq 'refentry') {
+            print $out_fh $parser->_indent (),
+              qq!<refsection id="$id"><title>$paragraph</title>\n!;
+        }    
+        else {
+            print $out_fh $parser->_indent (),
+              qq!<section id="$id"><title>$paragraph</title>\n!;
+        }
     }
 }
 
-sub _handle_item
-{
+sub _handle_item {
     my ($parser, $paragraph, $line_num) = @_;
     my $out_fh = $parser->output_handle ();
     my $state  = pop @{$parser->{'Pod::2::DocBook::state'}};
@@ -641,101 +578,95 @@ sub _handle_item
     $state = '' unless defined $state;
 
     if ($state eq 'verbatim') {
-    print $out_fh "]]></screen>\n";
-    $state = pop @{$parser->{'Pod::2::DocBook::state'}};
-    $state = '' unless defined $state;
+        print $out_fh "]]></screen>\n";
+        $state = pop @{$parser->{'Pod::2::DocBook::state'}};
+        $state = '' unless defined $state;
     }
 
     if ($state =~ /list\+$/) {
-    print $out_fh $parser->_current_indent (), "<para></para>\n";
+        print $out_fh $parser->_current_indent (), "<para></para>\n";
     }
 
     if ($state eq 'over') {
-    # first item
-    if (!defined ($paragraph) ||
-        $paragraph =~ /^\s*$/  ||
-        $paragraph eq '*') {
-        print $out_fh join ('',
-                $parser->_indent (),
-                "<para>\n",
-                $parser->_indent (),
-                "<itemizedlist>\n",
-                $parser->_indent (),
-                "<listitem>\n");
-        $state = 'list+';
+        # first item
+        if (!defined ($paragraph) ||
+            $paragraph =~ /^\s*$/  ||
+            $paragraph eq '*') {
+            print $out_fh join ('',
+                    $parser->_indent (),
+                    "<para>\n",
+                    $parser->_indent (),
+                    "<itemizedlist>\n",
+                    $parser->_indent (),
+                    "<listitem>\n");
+            $state = 'list+';
+        }    
+        elsif ($paragraph =~ /^([1aAiI])\.?$/) {
+            my $numeration = { 1 => 'arabic',
+                       a => 'loweralpha',
+                       A => 'upperalpha',
+                       i => 'lowerroman',
+                       I => 'upperroman' }->{$1};
+    
+            print $out_fh join ('',
+                    $parser->_indent (),
+                    "<para>\n",
+                    $parser->_indent (),
+                    qq!<orderedlist numeration="$numeration">\n!,
+                    $parser->_indent (),
+                    "<listitem>\n");
+            $state = 'olist+';
+        }
+        else {
+            my $id = $parser->_make_id ($paragraph);
+            print $out_fh join ('',
+                    $parser->_indent (),
+                    "<para>\n",
+                    $parser->_indent (),
+                    "<variablelist>\n",
+                    $parser->_indent (),
+                    "<varlistentry>\n",
+                    $parser->_current_indent (),
+                    qq!<term><anchor id="$id">$paragraph</term>\n!,
+                    $parser->_indent (),
+                    qq!<listitem>\n!);
+            $state = 'vlist+';
+        }
     }
-
-    elsif ($paragraph =~ /^([1aAiI])\.?$/) {
-        my $numeration = { 1 => 'arabic',
-                   a => 'loweralpha',
-                   A => 'upperalpha',
-                   i => 'lowerroman',
-                   I => 'upperroman' }->{$1};
-
+    elsif ($state =~ /^o?list/) {
         print $out_fh join ('',
-                $parser->_indent (),
-                "<para>\n",
-                $parser->_indent (),
-                qq!<orderedlist numeration="$numeration">\n!,
-                $parser->_indent (),
-                "<listitem>\n");
-        $state = 'olist+';
+                    $parser->_outdent (),
+                    "</listitem>\n",
+                    $parser->_indent (),
+                    "<listitem>\n");
+        $state = "$state+" unless $state =~ /\+$/;
     }
-
-    else {
+    elsif ($state =~ /^vlist/) {
         my $id = $parser->_make_id ($paragraph);
         print $out_fh join ('',
-                $parser->_indent (),
-                "<para>\n",
-                $parser->_indent (),
-                "<variablelist>\n",
-                $parser->_indent (),
-                "<varlistentry>\n",
-                $parser->_current_indent (),
-                qq!<term><anchor id="$id">$paragraph</term>\n!,
-                $parser->_indent (),
-                qq!<listitem>\n!);
+                    $parser->_outdent (),
+                    "</listitem>\n",
+                    $parser->_outdent (),
+                    "</varlistentry>\n",
+                    $parser->_indent (),
+                    "<varlistentry>\n",
+                    $parser->_current_indent (),
+                    qq!<term><anchor id="$id">$paragraph</term>\n!,
+                    $parser->_indent (),
+                    "<listitem>\n");
         $state = 'vlist+';
     }
-    }
-
-    elsif ($state =~ /^o?list/) {
-    print $out_fh join ('',
-                $parser->_outdent (),
-                "</listitem>\n",
-                $parser->_indent (),
-                "<listitem>\n");
-    $state = "$state+" unless $state =~ /\+$/;
-    }
-
-    elsif ($state =~ /^vlist/) {
-    my $id = $parser->_make_id ($paragraph);
-    print $out_fh join ('',
-                $parser->_outdent (),
-                "</listitem>\n",
-                $parser->_outdent (),
-                "</varlistentry>\n",
-                $parser->_indent (),
-                "<varlistentry>\n",
-                $parser->_current_indent (),
-                qq!<term><anchor id="$id">$paragraph</term>\n!,
-                $parser->_indent (),
-                "<listitem>\n");
-    $state = 'vlist+';
-    }
-
     else {
-    $parser->error_msg ('=item must be inside an',
-                '=over ... =back region',
-                "at line $line_num in file",
-                $parser->input_file ());
+        $parser->error_msg ('=item must be inside an',
+                    '=over ... =back region',
+                    "at line $line_num in file",
+                    $parser->input_file ());
     }
 
     push @{$parser->{'Pod::2::DocBook::state'}}, $state;
 }
 
-sub _transition
-{
+sub _transition {
     my ($parser, $what) = @_;
     my $out_fh = $parser->output_handle ();
     my ($level);
@@ -744,209 +675,190 @@ sub _transition
     # 1-4 are the valid numbers after '=head', so 0 and 5
     # are safe to use to mark out-of-bounds on either side
     if ($what eq 'THE END') {
-    $level = 0;
+        $level = 0;
     }
-
     elsif ($what =~ /^head(\d)/) {
-    $level = $1;
+        $level = $1;
     }
-
     else {
-    $level = 5;
+        $level = 5;
     }
 
     while (my $state = pop @{$parser->{'Pod::2::DocBook::state'}}) {
-    if (($what eq 'item' || $what eq 'over') &&
-        ($state eq 'over' || $state =~ /^(o|v)?list/)) {
-        # these are treated specially in _handle_item ()
-        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
-        last;
-    }
-
-    if ($state =~ /list\+$/) {
-        print $out_fh $parser->_current_indent (), "<para></para>\n";
-        $state =~ s/\+$//;
-    }
-
-    if ($state =~ /^head(\d)/) {
-        my $prev_level = $1;
-
-        if ($level > $prev_level) {
-        # embed in a previously opened section (i.e. restore
-        # state and continue processing the document)
-
-        # the enclosing section is no longer empty
-        $state =~ s/\+$//;
-        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
-        last;
-        }
-
-        else {
-        if ($state =~ /\+$/) {
-            # prevent empty sections
-            print $out_fh $parser->_current_indent (),
-              "<para></para>\n";
-        }
-
-        # close the previous section and continue with the stack
-        if ($parser->{doctype} eq 'refentry') {
-            print $out_fh $parser->_outdent (), "</refsection>\n";
-        }
-
-        else {
-            print $out_fh $parser->_outdent (), "</section>\n";
-        }
-        }
-    }
-
-    elsif ($state eq 'indent') {
-        print $out_fh $parser->_outdent (), "</blockquote>\n";
-
-        push @{$parser->{'Pod::2::DocBook::state'}}, 'over'
-          if ($what eq 'item');
-
-        last if $what eq 'back';
-    }
-
-    elsif ($state eq 'list') {
-        print $out_fh join ('',
-                $parser->_outdent (),
-                "</listitem>\n",
-                $parser->_outdent (),
-                "</itemizedlist>\n",
-                $parser->_outdent (),
-                "</para>\n");
-
-        last if $what eq 'back';
-    }
-
-    elsif ($state eq 'olist') {
-        print $out_fh join ('',
-                $parser->_outdent (),
-                "</listitem>\n",
-                $parser->_outdent (),
-                "</orderedlist>\n",
-                $parser->_outdent (),
-                "</para>\n");
-
-        last if $what eq 'back';
-    }
-
-    elsif ($state eq 'vlist') {
-        print $out_fh join ('',
-                $parser->_outdent (),
-                "</listitem>\n",
-                $parser->_outdent (),
-                "</varlistentry>\n",
-                $parser->_outdent (),
-                "</variablelist>\n",
-                $parser->_outdent (),
-                "</para>\n");
-
-        last if $what eq 'back';
-    }
-
-    elsif ($state =~ /^synopsis/) {
-        print $out_fh join ('',
-                $parser->_indent (),
-                "<refsynopsisdiv>\n",
-                $parser->_current_indent (),
-                "<synopsis></synopsis>\n")
-          if $state eq 'synopsis+';
-
-        print $out_fh $parser->_outdent (), "</refsynopsisdiv>\n";
-    }
-
-    elsif ($state eq 'name') {
-        print $out_fh join ('',
-                $parser->_indent (),
-                "<refnamediv>\n",
-                $parser->_indent (),
-                "<refname></refname>\n",
-                $parser->_current_indent (),
-                "<refpurpose></refpurpose>\n",
-                $parser->_outdent (),
-                "</refnamediv>\n");
-    }
-
-    elsif ($state eq 'verbatim') {
-        print $out_fh "]]></screen>\n";
-    }
-
-    elsif ($state =~ /^begin (.+)/) {
-        my $begin_format = $1;
-        if ($what =~ /^end (.+)/) {
-        my $end_format = $1;
-
-        if ($end_format eq $begin_format) {
-            if ($end_format eq 'docbook') {
-            my $paragraph =
-              join ('',
-                @{$parser->{'Pod::2::DocBook::dbpara'}});
-            $paragraph =~ s/\s+$//;
-            print $out_fh $paragraph, "\n";
-            $parser->{'Pod::2::DocBook::dbpara'} = [];
-            }
-
+        if (($what eq 'item' || $what eq 'over') &&
+            ($state eq 'over' || $state =~ /^(o|v)?list/)) {
+            # these are treated specially in _handle_item ()
+            push @{$parser->{'Pod::2::DocBook::state'}}, $state;
             last;
         }
-
+    
+        if ($state =~ /list\+$/) {
+            print $out_fh $parser->_current_indent (), "<para></para>\n";
+            $state =~ s/\+$//;
+        }
+    
+        if ($state =~ /^head(\d)/) {
+            my $prev_level = $1;
+    
+            if ($level > $prev_level) {
+                # embed in a previously opened section (i.e. restore
+                # state and continue processing the document)
+        
+                # the enclosing section is no longer empty
+                $state =~ s/\+$//;
+                push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+                last;
+            }    
+            else {
+                if ($state =~ /\+$/) {
+                    # prevent empty sections
+                    print $out_fh $parser->_current_indent (),
+                      "<para></para>\n";
+                }
+        
+                # close the previous section and continue with the stack
+                if ($parser->{doctype} eq 'refentry') {
+                    print $out_fh $parser->_outdent (), "</refsection>\n";
+                }        
+                else {
+                    print $out_fh $parser->_outdent (), "</section>\n";
+                }
+            }
+        }
+        elsif ($state eq 'indent') {
+            print $out_fh $parser->_outdent (), "</blockquote>\n";
+    
+            push @{$parser->{'Pod::2::DocBook::state'}}, 'over'
+              if ($what eq 'item');
+    
+            last if $what eq 'back';
+        }
+        elsif ($state eq 'list') {
+            print $out_fh join ('',
+                    $parser->_outdent (),
+                    "</listitem>\n",
+                    $parser->_outdent (),
+                    "</itemizedlist>\n",
+                    $parser->_outdent (),
+                    "</para>\n");
+    
+            last if $what eq 'back';
+        }    
+        elsif ($state eq 'olist') {
+            print $out_fh join ('',
+                    $parser->_outdent (),
+                    "</listitem>\n",
+                    $parser->_outdent (),
+                    "</orderedlist>\n",
+                    $parser->_outdent (),
+                    "</para>\n");
+    
+            last if $what eq 'back';
+        }
+        elsif ($state eq 'vlist') {
+            print $out_fh join ('',
+                    $parser->_outdent (),
+                    "</listitem>\n",
+                    $parser->_outdent (),
+                    "</varlistentry>\n",
+                    $parser->_outdent (),
+                    "</variablelist>\n",
+                    $parser->_outdent (),
+                    "</para>\n");
+    
+            last if $what eq 'back';
+        }
+        elsif ($state =~ /^synopsis/) {
+            print $out_fh join ('',
+                    $parser->_indent (),
+                    "<refsynopsisdiv>\n",
+                    $parser->_current_indent (),
+                    "<synopsis></synopsis>\n")
+              if $state eq 'synopsis+';
+    
+            print $out_fh $parser->_outdent (), "</refsynopsisdiv>\n";
+        }
+        elsif ($state eq 'name') {
+            print $out_fh join ('',
+                    $parser->_indent (),
+                    "<refnamediv>\n",
+                    $parser->_indent (),
+                    "<refname></refname>\n",
+                    $parser->_current_indent (),
+                    "<refpurpose></refpurpose>\n",
+                    $parser->_outdent (),
+                    "</refnamediv>\n");
+        }
+        elsif ($state eq 'verbatim') {
+            print $out_fh "]]></screen>\n";
+        }
+        elsif ($state =~ /^begin (.+)/) {
+            my $begin_format = $1;
+            if ($what =~ /^end (.+)/) {
+                my $end_format = $1;
+        
+                if ($end_format eq $begin_format) {
+                    if ($end_format eq 'docbook') {
+                        my $paragraph =
+                          join ('',
+                            @{$parser->{'Pod::2::DocBook::dbpara'}});
+                        $paragraph =~ s/\s+$//;
+                        print $out_fh $paragraph, "\n";
+                        $parser->{'Pod::2::DocBook::dbpara'} = [];
+                    }
+        
+                    last;
+                }    
+                else {
+                    # this is bad POD, but we do what we can
+                    # (maybe we'll find the begin we're looking for
+                    #  deeper in the stack)
+                    $parser->error_msg ("`=end $end_format' found",
+                            'but current region opened with',
+                            "`=begin $begin_format'");
+                }
+            }    
+            elsif ($what eq 'THE END') {
+                # this is bad POD, but we do what we can
+                $parser->error_msg ("no matching `=end' for",
+                            "`=begin $begin_format'");
+        
+                # we've got the data stored; might as well use it
+                if ($begin_format eq 'docbook') {
+                    my $paragraph =
+                      join ('',
+                        @{$parser->{'Pod::2::DocBook::dbpara'}});
+                    $paragraph =~ s/\s+$//;
+                    print $out_fh $paragraph, "\n";
+                    $parser->{'Pod::2::DocBook::dbpara'} = [];
+                }
+            }    
+            else {
+                push @{$parser->{'Pod::2::DocBook::state'}}, $state;
+                last;
+            }
+        }    
+        elsif ($state eq 'over') {
+            next;
+        }
         else {
-            # this is bad POD, but we do what we can
-            # (maybe we'll find the begin we're looking for
-            #  deeper in the stack)
-            $parser->error_msg ("`=end $end_format' found",
-                    'but current region opened with',
-                    "`=begin $begin_format'");
-        }
-        }
-
-        elsif ($what eq 'THE END') {
-        # this is bad POD, but we do what we can
-        $parser->error_msg ("no matching `=end' for",
-                    "`=begin $begin_format'");
-
-        # we've got the data stored; might as well use it
-        if ($begin_format eq 'docbook') {
-            my $paragraph =
-              join ('',
-                @{$parser->{'Pod::2::DocBook::dbpara'}});
-            $paragraph =~ s/\s+$//;
-            print $out_fh $paragraph, "\n";
-            $parser->{'Pod::2::DocBook::dbpara'} = [];
-        }
-        }
-
-        else {
-        push @{$parser->{'Pod::2::DocBook::state'}}, $state;
-        last;
-        }
-    }
-
-    elsif ($state eq 'over') {
-        next;
-    }
-
-    else {
-        $parser->error_msg ("encountered unknown state `$state'",
-                '(this should never happen)');
-    }
-
+            $parser->error_msg ("encountered unknown state `$state'",
+                    '(this should never happen)');
+        }    
     }
 }
 
-sub _handle_table
-{
+sub _handle_table {
     my ($parser, $paragraph, $line_num) = @_;
     my $out_fh = $parser->output_handle ();
     my (@rows, $columns, $title);
 
     foreach my $row (split (/\n/, $paragraph)) {
-    my @fields = quotewords (',', 0, $row);
-
-    $columns = @fields
-      if (!defined $columns || @fields > $columns);
-    push @rows, [@fields];
+        my @fields = quotewords (',', 0, $row);
+    
+        $columns = @fields
+            if (!defined $columns || @fields > $columns);
+        push @rows, [@fields];
     }
 
     # the first row specifies the title
@@ -962,18 +874,17 @@ sub _handle_table
 
     # the second row specifies column alignments
     foreach my $spec (@{$rows[1]}) {
-    print $out_fh $parser->_current_indent (), '<colspec ';
-
-    if (grep { $_ eq $spec } qw(left right center justify)) {
-        print $out_fh qq!align="$spec">\n!;
-    }
-
-    else {
-        print $out_fh qq!align="left">\n!;
-        $parser->error_msg ("unknown colspec `$spec' in table",
-                $title, "at line $line_num in file",
-                $parser->input_file ());
-    }
+        print $out_fh $parser->_current_indent (), '<colspec ';
+    
+        if (grep { $_ eq $spec } qw(left right center justify)) {
+            print $out_fh qq!align="$spec">\n!;
+        }
+        else {
+            print $out_fh qq!align="left">\n!;
+            $parser->error_msg ("unknown colspec `$spec' in table",
+                    $title, "at line $line_num in file",
+                    $parser->input_file ());
+        }
     }
 
     # the third row (first row of data) is the table header
@@ -984,8 +895,8 @@ sub _handle_table
             "<row>\n");
 
     foreach my $field (@{$rows[2]}) {
-    print $out_fh $parser->_current_indent (),
-      "<entry>$field</entry>\n";
+        print $out_fh $parser->_current_indent (),
+            "<entry>$field</entry>\n";
     }
 
     print $out_fh join ('',
@@ -998,14 +909,13 @@ sub _handle_table
     print $out_fh $parser->_indent (), "<tbody>\n";
 
     foreach my $row (@rows[3..$#rows]) {
-    print $out_fh $parser->_indent (), "<row>\n";
-
-    foreach my $field (@$row) {
-        print $out_fh $parser->_current_indent (),
-          "<entry>$field</entry>\n";
-    }
-
-    print $out_fh $parser->_outdent (), "</row>\n";
+        print $out_fh $parser->_indent (), "<row>\n";
+    
+        foreach my $field (@$row) {
+            print $out_fh $parser->_current_indent (), "<entry>$field</entry>\n";
+        }
+    
+        print $out_fh $parser->_outdent (), "</row>\n";
     }
 
     print $out_fh join ('',
@@ -1017,8 +927,7 @@ sub _handle_table
             "</table>\n");
 }
 
-sub _manpage
-{
+sub _manpage {
     my ($parser, $title, $volnum) = @_;
 
     # the substring "\37632\377" is a space character protected
@@ -1027,21 +936,20 @@ sub _manpage
     # are de-protected in _fix_chars ()
 
     if (defined $volnum) {
-    return join ("\n",
-             '<citerefentry>',
-             "\37632\377" x $parser->{spaces} .
-             "<refentrytitle>$title</refentrytitle>",
-             "\37632\377" x $parser->{spaces} .
-             "<manvolnum>$volnum</manvolnum>",
-             '</citerefentry>');
+        return join ("\n",
+                 '<citerefentry>',
+                 "\37632\377" x $parser->{spaces} .
+                 "<refentrytitle>$title</refentrytitle>",
+                 "\37632\377" x $parser->{spaces} .
+                 "<manvolnum>$volnum</manvolnum>",
+                 '</citerefentry>');
     }
-
     else {
-    return join ("\n",
-             '<citerefentry>',
-             "\37632\377" x $parser->{spaces} .
-             "<refentrytitle>$title</refentrytitle>",
-             '</citerefentry>');
+        return join ("\n",
+                 '<citerefentry>',
+                 "\37632\377" x $parser->{spaces} .
+                 "<refentrytitle>$title</refentrytitle>",
+                 '</citerefentry>');
     }
 }
 
@@ -1049,8 +957,7 @@ sub _manpage
 # helper functions
 #----------------------------------------------------------------------
 
-sub _fix_chars
-{
+sub _fix_chars {
     my ($paragraph) = @_;
 
     # fix characters that might annoy an SGML parser
