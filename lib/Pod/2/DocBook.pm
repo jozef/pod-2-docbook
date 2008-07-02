@@ -26,8 +26,11 @@ sub begin_pod {
     my ($parser) = @_;
     my $out_fh = $parser->output_handle ();
 
-    print $out_fh "<!DOCTYPE $parser->{doctype} ",
-      qq#PUBLIC "-//OASIS//DTD DocBook V4.2//EN">\n# if $parser->{header};
+    print $out_fh <<"END_HEADER" if $parser->{header};
+<!DOCTYPE $parser->{doctype} 
+        PUBLIC "-//OASIS//DTD DocBook V4.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" >
+END_HEADER
 
     print $out_fh join ("\n",
             '<!--',
@@ -627,7 +630,7 @@ sub _handle_item {
                     $parser->_indent (),
                     "<varlistentry>\n",
                     $parser->_current_indent (),
-                    qq!<term><anchor id="$id">$paragraph</term>\n!,
+                    qq!<term><anchor id="$id" />$paragraph</term>\n!,
                     $parser->_indent (),
                     qq!<listitem>\n!);
             $state = 'vlist+';
@@ -651,7 +654,7 @@ sub _handle_item {
                     $parser->_indent (),
                     "<varlistentry>\n",
                     $parser->_current_indent (),
-                    qq!<term><anchor id="$id">$paragraph</term>\n!,
+                    qq!<term><anchor id="$id" />$paragraph</term>\n!,
                     $parser->_indent (),
                     "<listitem>\n");
         $state = 'vlist+';
