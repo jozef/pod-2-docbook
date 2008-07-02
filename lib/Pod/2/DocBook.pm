@@ -11,7 +11,7 @@ use Text::ParseWords;
 use Text::Wrap;
 
 our @ISA     = qw(Pod::Parser);
-our $VERSION = '0.01_02';
+our $VERSION = '0.01';
 
 #----------------------------------------------------------------------
 # overridden Pod::Parser methods
@@ -1658,7 +1658,9 @@ but if you do, you should contact the module's author.
 
 =head1 SEE ALSO
 
-L<pod2docbook>, L<perlpod>, L<http://www.docbook.org/>, L<Pod::DocBook>
+L<pod2docbook>, L<perlpod>, L<http://www.docbook.org/>, L<Pod::DocBook>,
+SVN repo - L<https://cle.sk/repos/pub/cpan/Pod-2-DocBook/>,
+L<http://www.ohloh.net/projects/pod-2-docbook>
 
 =head1 AUTHOR
 
