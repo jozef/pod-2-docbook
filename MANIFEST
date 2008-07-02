@@ -40,3 +40,5 @@ t/paragraphs.pod
 t/paragraphs.sgml
 t/table.pod
 t/table.sgml
+t/valid_xml.t
+
