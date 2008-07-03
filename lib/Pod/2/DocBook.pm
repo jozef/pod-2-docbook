@@ -1,5 +1,67 @@
 package Pod::2::DocBook;
 
+=head1 NAME
+
+Pod::2::DocBook - Convert Pod data to DocBook SGML
+
+=head1 SYNOPSIS
+
+  use Pod::2::DocBook;
+  my $parser = Pod::2::DocBook->new (title             => 'My Article',
+                                     doctype           => 'article',
+                  fix_double_quotes => 1,
+                  spaces            => 3);
+
+  $parser->parse_from_file ('my_article.pod', 'my_article.sgml');
+
+=head1 DESCRIPTION
+
+Pod::2::DocBook is a module for translating Pod-formatted documents to
+DocBook 4.2 SGML (see L<http://www.docbook.org/>).  It is primarily a
+back end for B<pod2docbook>, but, as a Pod::Parser subclass, it can be
+used on its own.  The only public extensions to the Pod::Parser
+interface are options available to C<new()>:
+
+=over
+
+=item doctype
+
+This option sets the output document's doctype.  The currently
+supported types are B<article>, B<chapter>, B<refentry> and
+B<section>.  Special processing is performed when the doctype is set
+to B<refentry> (see L</Document Types>).  You I<must> set this option
+in order to get valid DocBook output.
+
+=item fix_double_quotes
+
+If this option is set to a true value, pairs of double quote
+characters ('"') in ordinary paragraphs will be replaced with
+B<E<lt>quoteE<gt>> and B<E<lt>/quoteE<gt>>.  See L</Ordinary
+Paragraphs> for details.
+
+=item header
+
+If this option is set to a true value, Pod::2::DocBook will emit a
+DOCTYPE as the first line of output.
+
+=item spaces
+
+Pod::2::DocBook produces pretty-printed output.  This option sets the
+number of spaces per level of indentation in the output.
+
+=item title
+
+This option sets the output document's title.
+
+=back
+
+The rest of this document only describes issues specific to
+Pod::2::DocBook; for details on invoking the parser, specifically the
+C<new()>, C<parse_from_file()> and C<parse_from_filehandle()> methods,
+see L<Pod::Parser>.
+
+=cut
+
 use 5.006001;
 use strict;
 use warnings;
@@ -10,17 +72,38 @@ use Pod::ParseLink;
 use Text::ParseWords;
 use Text::Wrap;
 
+
+=head1 METHODS
+
+    our @ISA     = qw(Pod::Parser);
+
+=cut
+
 our @ISA     = qw(Pod::Parser);
-our $VERSION = '0.01';
+our $VERSION = '0.02_01';
+
 
 #----------------------------------------------------------------------
 # overridden Pod::Parser methods
 #----------------------------------------------------------------------
 
+=head2 initialize()
+
+Initialize parser.
+
+=cut
+
 sub initialize {
     $_[0]->errorsub ('error_msg');
     $_[0]->{'Pod::2::DocBook::errors'} = [];
 }
+
+
+=head2 begin_pod()
+
+Output docbook header stuff.
+
+=cut
 
 sub begin_pod {
     my ($parser) = @_;
@@ -60,6 +143,13 @@ END_HEADER
     }
 }
 
+
+=head2 end_pod()
+
+Output docbook footer. Will print also errors if any in a comment block.
+
+=cut
+
 sub end_pod {
     my ($parser) = @_;
     my $out_fh = $parser->output_handle ();
@@ -79,6 +169,13 @@ sub end_pod {
         print $out_fh "-->\n";
     }
 }
+
+
+=head2 commans($command, $paragraph, $line_num)
+
+Process POD commands.
+
+=cut
 
 sub command {
     my ($parser, $command, $paragraph, $line_num) = @_;
@@ -137,6 +234,13 @@ sub command {
                     "line $line_num in file $file");
     }
 }
+
+
+=head2 textblock ($paragraph, $line_num)
+
+Process text block.
+
+=cut
 
 sub textblock {
     my ($parser, $paragraph, $line_num) = @_;
@@ -253,6 +357,13 @@ sub textblock {
     print $out_fh $para_out;
 }
 
+
+=head2 verbatim($paragraph, $line_num)
+
+Process verbatim text block.
+
+=cut
+
 sub verbatim {
     my ($parser, $paragraph, $line_num) = @_;
     my $out_fh = $parser->output_handle ();
@@ -340,6 +451,13 @@ sub verbatim {
     }
 }
 
+
+=head2 interior_sequence($command, $argument, $seq)
+
+Process formatting commands.
+
+=cut
+
 sub interior_sequence {
     my ($parser, $command, $argument, $seq) = @_;
     my $out_fh = $parser->output_handle ();
@@ -412,9 +530,16 @@ sub interior_sequence {
     return $string;
 }
 
+
 #----------------------------------------------------------------------
 # other public methods
 #----------------------------------------------------------------------
+
+=head2 error_msg
+
+Returns parser error message(s) if any occured. 
+
+=cut
 
 sub error_msg {
     my $parser = shift;
@@ -979,65 +1104,6 @@ sub _fix_chars {
 
 __END__
 
-=head1 NAME
-
-Pod::2::DocBook - Convert Pod data to DocBook SGML
-
-=head1 SYNOPSIS
-
-  use Pod::2::DocBook;
-  my $parser = Pod::2::DocBook->new (title             => 'My Article',
-                                     doctype           => 'article',
-                  fix_double_quotes => 1,
-                  spaces            => 3);
-
-  $parser->parse_from_file ('my_article.pod', 'my_article.sgml');
-
-=head1 DESCRIPTION
-
-Pod::2::DocBook is a module for translating Pod-formatted documents to
-DocBook 4.2 SGML (see L<http://www.docbook.org/>).  It is primarily a
-back end for B<pod2docbook>, but, as a Pod::Parser subclass, it can be
-used on its own.  The only public extensions to the Pod::Parser
-interface are options available to C<new()>:
-
-=over
-
-=item doctype
-
-This option sets the output document's doctype.  The currently
-supported types are B<article>, B<chapter>, B<refentry> and
-B<section>.  Special processing is performed when the doctype is set
-to B<refentry> (see L</Document Types>).  You I<must> set this option
-in order to get valid DocBook output.
-
-=item fix_double_quotes
-
-If this option is set to a true value, pairs of double quote
-characters ('"') in ordinary paragraphs will be replaced with
-B<E<lt>quoteE<gt>> and B<E<lt>/quoteE<gt>>.  See L</Ordinary
-Paragraphs> for details.
-
-=item header
-
-If this option is set to a true value, Pod::2::DocBook will emit a
-DOCTYPE as the first line of output.
-
-=item spaces
-
-Pod::2::DocBook produces pretty-printed output.  This option sets the
-number of spaces per level of indentation in the output.
-
-=item title
-
-This option sets the output document's title.
-
-=back
-
-The rest of this document only describes issues specific to
-Pod::2::DocBook; for details on invoking the parser, specifically the
-C<new()>, C<parse_from_file()> and C<parse_from_filehandle()> methods,
-see L<Pod::Parser>.
 
 =head1 POD TO DOCBOOK TRANSLATION
 
@@ -1675,11 +1741,13 @@ same function). (L<http://search.cpan.org/~nandu/Pod-DocBook-1.2/>)
 
 Jozef Kutej <jkutej@cpan.org> renamed the module to Pod::2::DocBook
 because Nandus version was buried in the CPAN archive as an
-"UNAUTHORIZED RELEASE". Still hoping to get in contact with Nandu...
+"UNAUTHORIZED RELEASE".
 
 =head1 COPYRIGHT
 
 Copyright 2004, Nandu Shah <nandu@zvolve.com>
+
+Copyright 2008, Jozef Kutej <jkutej@cpan.org>
 
 This library is free software; you may redistribute it and/or modify
 it under the same terms as Perl itself

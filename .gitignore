@@ -1,3 +1,10 @@
 Makefile
 blib
 pm_to_blib
+META.yml
+README
+Makefile.PL
+Build
+_build
+Pod-2-DocBook-*.tar.gz
+MANIFEST.bak

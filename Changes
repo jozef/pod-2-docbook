@@ -1,5 +1,12 @@
 =head1 Pod::2::DocBook
 
+    * 0.02 Thu  3 Jul 2008
+        - now using Module::Build instead of ExtUtils::MakeMaker
+        - moved NAME, SYNOPSIS, DESCRIPTION on top of DocBook.pm
+        - added METHODS POD
+        - added 00-compile.t, distribution.t, pod-coverage.t, pod-spell.t,
+          pod.t, signature.t
+
     * 0.01 Tue 10 Jun 2008
         - Applied patches for =for blocks from Perl Training Australia's
           Pod::DocBook repository. (pjf)
