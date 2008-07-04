@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE chapter PUBLIC "-//CUSTOM//DOCKBOOK 4.4//EN" "../custom.dtd">
+<chapter id="chapter-intro">
+    <title>Introduction</title>
+
+    <section id='intro.overview'>
+        <title>Overview</title>
+
+        <para>&pod2docbook; Perl module helps to convert existing pod documentation
+        to docbook xml format. For a full reasoning and detail description see
+        <xref linkend="chapter-dev"/>
+        
+        </para>
+
+        <para>more bla bla info &tbd;
+        </para>
+
+    </section>
+
+</chapter>
