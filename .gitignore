@@ -8,3 +8,5 @@ Build
 _build
 Pod-2-DocBook-*.tar.gz
 MANIFEST.bak
+cover_db
+t/*.out

@@ -603,44 +603,33 @@ sub _handle_L {
 
     my ($text, $inferred, $name, $section, $type) = parselink ($argument);
 
-    if ($type eq 'url') {
-        return qq!<ulink\37632\377url="$inferred">$inferred</ulink>!;
+    return qq!<ulink\37632\377url="$inferred">$inferred</ulink>! 
+        if $type eq 'url';
+
+    # types 'man' and 'pod' are handled the same way
+    if (defined $section && ! defined $name) {
+        my $id = $parser->_make_id ($section);
+
+        $section = $text if defined $text;
+        return (qq!<link\37632\377linkend="$id"><quote>$section! .
+            "</quote></link>");
     }
-    else {
-        # types 'man' and 'pod' are handled the same way
-        if (defined $section && ! defined $name) {
-            my $id = $parser->_make_id ($section);
-    
-            $section = $text if defined $text;
-            return (qq!<link\37632\377linkend="$id"><quote>$section! .
-                "</quote></link>");
-        }
-        elsif (defined $text) {
-            return $text;
-        }
-        elsif (defined $name) {
-            my $string;
-            if ($name =~ /(.+?)\((.+)\)/) {
-                $string = $parser->_manpage ($1, $2);
-            }    
-            else {
-                $string = $parser->_manpage ($name);
-            }
-    
-            if (defined $section) {
-                return "<quote>$section</quote> in $string";
-            }
-            else {
-                return $string;
-            }
-        }    
-        else {
-            my ($file, $line) = $seq->file_line ();
-            $parser->error_msg ("empty L&lt;&gt; at line",
-                    "$line in file $file\n");
-            return $seq->raw_text ();
-        }
-    }
+
+    return $text if defined $text;
+
+    if (defined $name) {
+        my $string = $name =~ /(.+?)\((.+)\)/ ? $parser->_manpage ($1, $2)
+                                              : $parser->_manpage ($name)
+                                              ;
+
+        return defined $section ? "<quote>$section</quote> in $string"
+                                : $string
+                                ;
+    }    
+
+    my ($file, $line) = $seq->file_line ();
+    $parser->error_msg ("empty L&lt;&gt; at line", "$line in file $file\n");
+    return $seq->raw_text ();
 }
 
 sub _handle_E {
@@ -652,30 +641,19 @@ sub _handle_E {
                     "at line $line in file $file\n");
         return $seq->raw_text ();
     }
-    elsif ($argument eq 'verbar') {
-        return '|';
-    }
-    elsif ($argument eq 'sol') {
-        return '/';
-    }
-    elsif ($argument eq 'lchevron' || $argument eq 'laquo') {
-        return '&#171;';
-    }
-    elsif ($argument eq 'rchevron' || $argument eq 'raquo') {
-        return '&#187;';
-    }
-    elsif ($argument =~ /^0x/) {
-        return ('&#' . hex ($argument) . ';');
-    }
-    elsif ($argument =~ /^0/) {
-        return ('&#' . oct ($argument) . ';');
-    }
-    elsif ($argument =~ /^\d+$/) {
-        return "&#$argument;";
-    }
-    else {
-        return "&$argument;";
-    }
+
+                                        # careful! the order is important
+    return $argument eq 'verbar'           ? '|'
+         : $argument eq 'sol'              ? '/' 
+         : ( $argument eq 'lchevron' 
+                 or $argument eq 'laquo' ) ? '&#171;'
+         : ( $argument eq 'rchevron' 
+                 or $argument eq 'raquo' ) ? '&#187;'
+         : $argument =~ /^0x/              ? '&#' . hex ($argument) . ';'
+         : $argument =~ /^0/               ? '&#' . oct ($argument) . ';'
+         : $argument =~ /^\d+$/            ? "&#$argument;"
+         :                                   "&$argument;"
+         ;
 }
 
 sub _handle_head {
@@ -1067,23 +1045,18 @@ sub _manpage {
     # against translation in S<>; other characters are protected at
     # the end of interior_sequence (), and all protected characters
     # are de-protected in _fix_chars ()
+   
+    my $manvol = $volnum ? "\37632\377" x $parser->{spaces} 
+                           . "<manvolnum>$volnum</manvolnum>"
+                         : ''
+                         ;
 
-    if (defined $volnum) {
-        return join ("\n",
+    return join "\n" =>
                  '<citerefentry>',
                  "\37632\377" x $parser->{spaces} .
                  "<refentrytitle>$title</refentrytitle>",
-                 "\37632\377" x $parser->{spaces} .
-                 "<manvolnum>$volnum</manvolnum>",
-                 '</citerefentry>');
-    }
-    else {
-        return join ("\n",
-                 '<citerefentry>',
-                 "\37632\377" x $parser->{spaces} .
-                 "<refentrytitle>$title</refentrytitle>",
-                 '</citerefentry>');
-    }
+                 $manvol,
+                 '</citerefentry>';
 }
 
 #----------------------------------------------------------------------
