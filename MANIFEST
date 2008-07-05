@@ -46,6 +46,7 @@ t/Pod-2-DocBook.t
 t/pod-coverage.t
 t/pod-spell.t
 t/pod.t
+t/refentry.t
 t/signature.t
 t/table.pod
 t/table.sgml

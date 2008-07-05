@@ -319,18 +319,19 @@ sub textblock {
     
         $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
     
-        $para_out = join ('',
-                  $parser->_indent (),
+        {
+            no warnings qw/ uninitialized /;
+            $para_out = $parser->_indent;
+
+            my $padding = ' ' x ($parser->{spaces} * $parser->{indentlevel});
+
+            $para_out .= join '',
                   "<para>\n",
-                  wrap (' ' x ($parser->{spaces} *
-                           $parser->{indentlevel}),
-                    ' ' x ($parser->{spaces} *
-                           $parser->{indentlevel}),
-                    $paragraph),
+                  wrap ( $padding, $padding, $paragraph ),
                   "\n",
-                  $parser->_outdent (),
-                  "</para>\n");
-    
+                  $parser->_outdent,
+                  "</para>\n";
+        }
         $state =~ s/\+$//;
         push @{$parser->{'Pod::2::DocBook::state'}}, $state
           unless ($state eq 'verbatim' || $state eq '');
@@ -398,16 +399,17 @@ sub verbatim {
     }
     elsif ($state eq 'name') {
         my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
-    
-        print $out_fh join ('',
-                    $parser->_indent (),
-                    "refnamediv>\n",
-                    $parser->_current_indent (),
-                    "<refname>$name</refname>\n",
-                    $parser->_current_indent (),
-                    "<refpurpose>$purpose</refpurpose>\n",
-                    $parser->_outdent (),
-                    "</refnamediv>\n");
+   
+        no warnings qw/ uninitialized /; # $purpose can be empty
+
+        print $out_fh $parser->_indent,
+                        "<refnamediv>\n",
+                        $parser->_current_indent,
+                        "<refname>$name</refname>\n",
+                        $parser->_current_indent,
+                        "<refpurpose>$purpose</refpurpose>\n",
+                        $parser->_outdent,
+                        "</refnamediv>\n";
     }
     elsif ($state eq 'synopsis+') {
         print $out_fh join ('',
@@ -553,17 +555,20 @@ sub error_msg {
 
 sub _indent {
     my ($parser) = @_;
+    no warnings qw/ uninitialized /;
     return (' ' x ($parser->{spaces} * $parser->{indentlevel}++));
 }
 
 sub _outdent {
     my ($parser) = @_;
+    no warnings qw/ uninitialized /;
     return (' ' x (--$parser->{indentlevel} * $parser->{spaces}));
 }
 
 sub _current_indent {
     my $parser = shift;
 
+    no warnings qw/ uninitialized /;
     return ' ' x ($parser->{spaces} * $parser->{indentlevel});
 }
 
