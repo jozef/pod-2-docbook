@@ -1,10 +1,11 @@
 BOOKNAME=Pod-2-DocBook
 #DRAFT=--stringparam draft.watermark.image images/draft.png
 
-XML=*.xml chapters/*.xml chapters/pod/*.xml
+XML=*.xml chapters/*.xml
+PODXML=chapters/pod/Pod-2-DocBook.xml chapters/pod/pod2docbook.xml
 IMAGES=images/*.png
 XINCLUDES=chapters/examples/*
-SOURCES=$(XML) $(IMAGES) $(XINCLUDES) entities.mod Makefile
+SOURCES=$(XML) $(PODXML) $(IMAGES) $(XINCLUDES) entities.mod Makefile
 POD2DOCBOOK=pod2docbook
 PODROOT=code
 
