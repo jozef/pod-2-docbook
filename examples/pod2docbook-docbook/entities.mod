@@ -26,9 +26,6 @@
 
 <!ENTITY user       "end user">
 
-<!ENTITY nbsp       " "> <!-- FIXME -->
-
-
 <!-- DBIx::Class -->
 <!ENTITY orm             "<acronym>ORM</acronym>">
 <!ENTITY orm-long        "<acronym>Object/Relation mapping</acronym>">
