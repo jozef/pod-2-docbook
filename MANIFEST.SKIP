@@ -27,3 +27,12 @@
 \.bak$
 \#$
 \b\.#
+
+examples/pod2docbook-docbook/.validated
+examples/pod2docbook-docbook/book.fo
+examples/pod2docbook-docbook/Pod-2-DocBook.html
+examples/pod2docbook-docbook/Pod-2-DocBook.pdf
+examples/pod2docbook-docbook/chapters/pod/.*\.xml
+
+Pod-2-DocBook-.*\.tar\.gz
+

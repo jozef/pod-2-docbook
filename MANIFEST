@@ -1,5 +1,6 @@
 Build.PL
 Changes
+doc/docbook.css
 doc/Pod-2-DocBook.html
 doc/Pod-2-DocBook.pdf
 examples/pod2docbook-docbook/.gitignore
@@ -9,8 +10,7 @@ examples/pod2docbook-docbook/chapters/appendix-a.xml
 examples/pod2docbook-docbook/chapters/development.xml
 examples/pod2docbook-docbook/chapters/examples/empty
 examples/pod2docbook-docbook/chapters/introduction.xml
-examples/pod2docbook-docbook/chapters/pod/Pod-2-DocBook.xml
-examples/pod2docbook-docbook/chapters/pod/pod2docbook.xml
+examples/pod2docbook-docbook/chapters/pod/.placeholder
 examples/pod2docbook-docbook/chapters/usage.xml
 examples/pod2docbook-docbook/code/DocBook.pm
 examples/pod2docbook-docbook/code/pod2docbook
