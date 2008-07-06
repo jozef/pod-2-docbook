@@ -23,6 +23,7 @@ examples/pod2docbook-docbook/images/note.png
 examples/pod2docbook-docbook/images/note.svg
 examples/pod2docbook-docbook/images/warning.png
 examples/pod2docbook-docbook/images/warning.svg
+examples/pod2docbook-docbook/Makefile
 examples/pod2docbook-docbook/xinclude.mod
 lib/Pod/2/DocBook.pm
 Makefile.PL
