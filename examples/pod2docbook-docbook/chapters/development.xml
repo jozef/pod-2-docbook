@@ -17,7 +17,7 @@
             <xi:include href="pod/Pod-2-DocBook.xml" />
         </section>
         
-        <section>
+        <section id="dev.scripts">
             <title>Scripts</title>
             <xi:include href="pod/pod2docbook.xml" />
         </section>

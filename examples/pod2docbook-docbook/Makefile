@@ -29,7 +29,7 @@ $(BOOKNAME).html: .validated $(SOURCES)
 	--stringparam draft.mode no \
 	--stringparam admon.graphics 1 \
 	--stringparam admon.graphics.extension .png \
-	--stringparam html.stylesheet http://cle.sk/stylesheets/docbook.css \
+	--stringparam html.stylesheet docbook.css \
 	--output $@ html-stylesheet.xsl book.xml
 
 
