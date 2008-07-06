@@ -1704,7 +1704,9 @@ but if you do, you should contact the module's author.
 
 L<pod2docbook>, L<perlpod>, L<Pod::DocBook>,
 SVN repo - L<https://cle.sk/repos/pub/cpan/Pod-2-DocBook/>,
-L<http://www.ohloh.net/projects/pod-2-docbook>
+L<http://www.ohloh.net/projects/pod-2-docbook>,
+F<doc/> + F<examples/pod2docbook-docbook/> for Pod::2::DocBook
+DocBook documentation
 
 DocBook related links: L<http://www.docbook.org/>,
 L<http://www.sagehill.net/docbookxsl/>,

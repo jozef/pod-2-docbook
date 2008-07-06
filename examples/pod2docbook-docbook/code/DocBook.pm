@@ -319,18 +319,19 @@ sub textblock {
     
         $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
     
-        $para_out = join ('',
-                  $parser->_indent (),
+        {
+            no warnings qw/ uninitialized /;
+            $para_out = $parser->_indent;
+
+            my $padding = ' ' x ($parser->{spaces} * $parser->{indentlevel});
+
+            $para_out .= join '',
                   "<para>\n",
-                  wrap (' ' x ($parser->{spaces} *
-                           $parser->{indentlevel}),
-                    ' ' x ($parser->{spaces} *
-                           $parser->{indentlevel}),
-                    $paragraph),
+                  wrap ( $padding, $padding, $paragraph ),
                   "\n",
-                  $parser->_outdent (),
-                  "</para>\n");
-    
+                  $parser->_outdent,
+                  "</para>\n";
+        }
         $state =~ s/\+$//;
         push @{$parser->{'Pod::2::DocBook::state'}}, $state
           unless ($state eq 'verbatim' || $state eq '');
@@ -398,16 +399,17 @@ sub verbatim {
     }
     elsif ($state eq 'name') {
         my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
-    
-        print $out_fh join ('',
-                    $parser->_indent (),
-                    "refnamediv>\n",
-                    $parser->_current_indent (),
-                    "<refname>$name</refname>\n",
-                    $parser->_current_indent (),
-                    "<refpurpose>$purpose</refpurpose>\n",
-                    $parser->_outdent (),
-                    "</refnamediv>\n");
+   
+        no warnings qw/ uninitialized /; # $purpose can be empty
+
+        print $out_fh $parser->_indent,
+                        "<refnamediv>\n",
+                        $parser->_current_indent,
+                        "<refname>$name</refname>\n",
+                        $parser->_current_indent,
+                        "<refpurpose>$purpose</refpurpose>\n",
+                        $parser->_outdent,
+                        "</refnamediv>\n";
     }
     elsif ($state eq 'synopsis+') {
         print $out_fh join ('',
@@ -553,17 +555,20 @@ sub error_msg {
 
 sub _indent {
     my ($parser) = @_;
+    no warnings qw/ uninitialized /;
     return (' ' x ($parser->{spaces} * $parser->{indentlevel}++));
 }
 
 sub _outdent {
     my ($parser) = @_;
+    no warnings qw/ uninitialized /;
     return (' ' x (--$parser->{indentlevel} * $parser->{spaces}));
 }
 
 sub _current_indent {
     my $parser = shift;
 
+    no warnings qw/ uninitialized /;
     return ' ' x ($parser->{spaces} * $parser->{indentlevel});
 }
 
@@ -598,44 +603,33 @@ sub _handle_L {
 
     my ($text, $inferred, $name, $section, $type) = parselink ($argument);
 
-    if ($type eq 'url') {
-        return qq!<ulink\37632\377url="$inferred">$inferred</ulink>!;
+    return qq!<ulink\37632\377url="$inferred">$inferred</ulink>! 
+        if $type eq 'url';
+
+    # types 'man' and 'pod' are handled the same way
+    if (defined $section && ! defined $name) {
+        my $id = $parser->_make_id ($section);
+
+        $section = $text if defined $text;
+        return (qq!<link\37632\377linkend="$id"><quote>$section! .
+            "</quote></link>");
     }
-    else {
-        # types 'man' and 'pod' are handled the same way
-        if (defined $section && ! defined $name) {
-            my $id = $parser->_make_id ($section);
-    
-            $section = $text if defined $text;
-            return (qq!<link\37632\377linkend="$id"><quote>$section! .
-                "</quote></link>");
-        }
-        elsif (defined $text) {
-            return $text;
-        }
-        elsif (defined $name) {
-            my $string;
-            if ($name =~ /(.+?)\((.+)\)/) {
-                $string = $parser->_manpage ($1, $2);
-            }    
-            else {
-                $string = $parser->_manpage ($name);
-            }
-    
-            if (defined $section) {
-                return "<quote>$section</quote> in $string";
-            }
-            else {
-                return $string;
-            }
-        }    
-        else {
-            my ($file, $line) = $seq->file_line ();
-            $parser->error_msg ("empty L&lt;&gt; at line",
-                    "$line in file $file\n");
-            return $seq->raw_text ();
-        }
-    }
+
+    return $text if defined $text;
+
+    if (defined $name) {
+        my $string = $name =~ /(.+?)\((.+)\)/ ? $parser->_manpage ($1, $2)
+                                              : $parser->_manpage ($name)
+                                              ;
+
+        return defined $section ? "<quote>$section</quote> in $string"
+                                : $string
+                                ;
+    }    
+
+    my ($file, $line) = $seq->file_line ();
+    $parser->error_msg ("empty L&lt;&gt; at line", "$line in file $file\n");
+    return $seq->raw_text ();
 }
 
 sub _handle_E {
@@ -647,30 +641,19 @@ sub _handle_E {
                     "at line $line in file $file\n");
         return $seq->raw_text ();
     }
-    elsif ($argument eq 'verbar') {
-        return '|';
-    }
-    elsif ($argument eq 'sol') {
-        return '/';
-    }
-    elsif ($argument eq 'lchevron' || $argument eq 'laquo') {
-        return '&#171;';
-    }
-    elsif ($argument eq 'rchevron' || $argument eq 'raquo') {
-        return '&#187;';
-    }
-    elsif ($argument =~ /^0x/) {
-        return ('&#' . hex ($argument) . ';');
-    }
-    elsif ($argument =~ /^0/) {
-        return ('&#' . oct ($argument) . ';');
-    }
-    elsif ($argument =~ /^\d+$/) {
-        return "&#$argument;";
-    }
-    else {
-        return "&$argument;";
-    }
+
+                                        # careful! the order is important
+    return $argument eq 'verbar'           ? '|'
+         : $argument eq 'sol'              ? '/' 
+         : ( $argument eq 'lchevron' 
+                 or $argument eq 'laquo' ) ? '&#171;'
+         : ( $argument eq 'rchevron' 
+                 or $argument eq 'raquo' ) ? '&#187;'
+         : $argument =~ /^0x/              ? '&#' . hex ($argument) . ';'
+         : $argument =~ /^0/               ? '&#' . oct ($argument) . ';'
+         : $argument =~ /^\d+$/            ? "&#$argument;"
+         :                                   "&$argument;"
+         ;
 }
 
 sub _handle_head {
@@ -1062,23 +1045,18 @@ sub _manpage {
     # against translation in S<>; other characters are protected at
     # the end of interior_sequence (), and all protected characters
     # are de-protected in _fix_chars ()
+   
+    my $manvol = $volnum ? "\37632\377" x $parser->{spaces} 
+                           . "<manvolnum>$volnum</manvolnum>"
+                         : ''
+                         ;
 
-    if (defined $volnum) {
-        return join ("\n",
+    return join "\n" =>
                  '<citerefentry>',
                  "\37632\377" x $parser->{spaces} .
                  "<refentrytitle>$title</refentrytitle>",
-                 "\37632\377" x $parser->{spaces} .
-                 "<manvolnum>$volnum</manvolnum>",
-                 '</citerefentry>');
-    }
-    else {
-        return join ("\n",
-                 '<citerefentry>',
-                 "\37632\377" x $parser->{spaces} .
-                 "<refentrytitle>$title</refentrytitle>",
-                 '</citerefentry>');
-    }
+                 $manvol,
+                 '</citerefentry>';
 }
 
 #----------------------------------------------------------------------
@@ -1724,9 +1702,15 @@ but if you do, you should contact the module's author.
 
 =head1 SEE ALSO
 
-L<pod2docbook>, L<perlpod>, L<http://www.docbook.org/>, L<Pod::DocBook>,
+L<pod2docbook>, L<perlpod>, L<Pod::DocBook>,
 SVN repo - L<https://cle.sk/repos/pub/cpan/Pod-2-DocBook/>,
-L<http://www.ohloh.net/projects/pod-2-docbook>
+L<http://www.ohloh.net/projects/pod-2-docbook>,
+F<doc/> + F<examples/pod2docbook-docbook/> for Pod::2::DocBook
+DocBook documentation
+
+DocBook related links: L<http://www.docbook.org/>,
+L<http://www.sagehill.net/docbookxsl/>,
+L<http://developers.cogentrts.com/cogent/prepdoc/pd-axfrequentlyuseddocbooktags.html>
 
 =head1 AUTHOR
 
