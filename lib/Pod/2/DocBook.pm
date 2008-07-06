@@ -1702,9 +1702,13 @@ but if you do, you should contact the module's author.
 
 =head1 SEE ALSO
 
-L<pod2docbook>, L<perlpod>, L<http://www.docbook.org/>, L<Pod::DocBook>,
+L<pod2docbook>, L<perlpod>, L<Pod::DocBook>,
 SVN repo - L<https://cle.sk/repos/pub/cpan/Pod-2-DocBook/>,
 L<http://www.ohloh.net/projects/pod-2-docbook>
+
+DocBook related links: L<http://www.docbook.org/>,
+L<http://www.sagehill.net/docbookxsl/>,
+L<http://developers.cogentrts.com/cogent/prepdoc/pd-axfrequentlyuseddocbooktags.html>
 
 =head1 AUTHOR
 
