@@ -51,3 +51,6 @@ t/signature.t
 t/table.pod
 t/table.sgml
 t/valid_xml.t
+doc/Pod-2-DocBook.html
+doc/Pod-2-DocBook.pdf
+
