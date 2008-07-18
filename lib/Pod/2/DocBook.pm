@@ -94,8 +94,13 @@ Initialize parser.
 =cut
 
 sub initialize {
-    $_[0]->errorsub ('error_msg');
-    $_[0]->{'Pod::2::DocBook::errors'} = [];
+    my $parser = shift;
+
+    $parser->errorsub ('error_msg');
+    $parser->{'Pod::2::DocBook::errors'} = [];
+
+    $parser->{title}  ||= q{};
+    $parser->{spaces} ||= 0;
 }
 
 
@@ -320,7 +325,6 @@ sub textblock {
         $paragraph =~ s/\s*\n\s*/ /g;           # don't just wrap, fill
     
         {
-            no warnings qw/ uninitialized /;
             $para_out = $parser->_indent;
 
             my $padding = ' ' x ($parser->{spaces} * $parser->{indentlevel});
@@ -400,7 +404,7 @@ sub verbatim {
     elsif ($state eq 'name') {
         my ($name, $purpose) = split (/\s*-\s*/, $paragraph, 2);
    
-        no warnings qw/ uninitialized /; # $purpose can be empty
+        $purpose ||= q{}; # $purpose can be empty
 
         print $out_fh $parser->_indent,
                         "<refnamediv>\n",
@@ -555,20 +559,16 @@ sub error_msg {
 
 sub _indent {
     my ($parser) = @_;
-    no warnings qw/ uninitialized /;
     return (' ' x ($parser->{spaces} * $parser->{indentlevel}++));
 }
 
 sub _outdent {
     my ($parser) = @_;
-    no warnings qw/ uninitialized /;
     return (' ' x (--$parser->{indentlevel} * $parser->{spaces}));
 }
 
 sub _current_indent {
     my $parser = shift;
-
-    no warnings qw/ uninitialized /;
     return ' ' x ($parser->{spaces} * $parser->{indentlevel});
 }
 
