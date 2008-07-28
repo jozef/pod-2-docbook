@@ -574,7 +574,11 @@ sub _current_indent {
 
 sub _make_id {
     my $parser = shift;
-    my $string = join ('-', $parser->{doctype}, $parser->{title}, $_[0]);
+    my $string = join '-', 
+                      $parser->{doctype}, 
+                      $parser->{title}, 
+                      $_[0],
+                      ++$parser->{section_instance};
 
     $string =~ s/<!\[CDATA\[(.+?)\]\]>/$1/g;
     $string =~ s/<.+?>//g;

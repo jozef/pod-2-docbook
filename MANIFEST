@@ -76,3 +76,4 @@ t/signature.t
 t/table.pod
 t/table.sgml
 t/valid_xml.t
+t/make_id.t
