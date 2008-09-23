@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
         'Pod::ParseLink'   => 0,
         'Text::ParseWords' => 0,
         'Text::Wrap'       => 0,
+        'List::MoreUtils'  => 0,
     },
     build_requires => {
         'Test::More'  => 0,

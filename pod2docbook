@@ -3,9 +3,12 @@
 use strict;
 use warnings;
 
+our $VERSION = '0.01';
+
 use Getopt::Long;
 use Pod::2::DocBook;
 use Pod::Usage;
+use List::MoreUtils 'none';
 
 exit main();
 
@@ -14,21 +17,21 @@ sub main {
     my $spaces  = 2;
     my ($title, $double_quotes, $help, $no_header);
 
-    pod2usage unless GetOptions ('doctype=s'           => \$doctype,
-                     'title=s'             => \$title,
-                     'spaces=i'            => \$spaces,
-                     'fix-double-quotes'   => \$double_quotes,
-                     'no-header'           => \$no_header,
-                     'help'                => \$help,
-                    );
+    GetOptions (
+        'doctype=s'         => \$doctype,
+        'title=s'           => \$title,
+        'spaces=i'          => \$spaces,
+        'fix-double-quotes' => \$double_quotes,
+        'no-header'         => \$no_header,
+        'help'              => \$help,
+    ) or pod2usage();
 
-    pod2usage if     $help;
-    pod2usage unless grep { $doctype eq $_ } qw(article chapter
-                            refentry section);
-    pod2usage unless $spaces =~ /^\d+$/;
+    pod2usage if $help;
+    pod2usage if none { $doctype eq $_ } qw(article chapter refentry section);
+    pod2usage unless $spaces =~ /^\d+$/xms;
 
     if (@ARGV == 0) {
-        $title = '' unless defined $title;
+        $title = q{} unless defined $title;
         my $parser = Pod::2::DocBook->new (title => $title,
                         doctype => $doctype,
                         fix_double_quotes => $double_quotes,
@@ -40,7 +43,7 @@ sub main {
     else {
         my ($infile, $outfile) = @ARGV;
 
-        ($title) = $infile =~ m!([^/]+)\z! unless defined $title;
+        ($title) = $infile =~ m{([^/]+)\z}xms unless defined $title;
         my $parser = Pod::2::DocBook->new (title => $title,
                         doctype => $doctype,
                         fix_double_quotes => $double_quotes,
@@ -55,7 +58,12 @@ sub main {
         $parser->parse_from_file ($infile);
         }
     }
+    
+    return 0;
 }
+
+
+__END__
 
 =head1 NAME
 
