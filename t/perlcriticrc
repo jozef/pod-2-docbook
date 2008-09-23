@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 
-severity = 2
+severity = 1
 
 #------------------------------------------------------------------------------
 
@@ -12,3 +12,6 @@ script_sections = NAME|DESCRIPTION|SYNOPSIS|AUTHOR|COPYRIGHT
 
 [ControlStructures::ProhibitPostfixControls]
 allow = if unless
+
+[CodeLayout::RequireTidyCode]
+perltidyrc = t/perltidy.conf
