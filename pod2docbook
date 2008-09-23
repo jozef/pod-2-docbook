@@ -7,52 +7,55 @@ use Getopt::Long;
 use Pod::2::DocBook;
 use Pod::Usage;
 
-my $doctype = 'section';
-my $spaces  = 2;
-my ($title, $double_quotes, $help, $no_header);
+exit main();
 
-pod2usage unless GetOptions ('doctype=s'           => \$doctype,
-			     'title=s'             => \$title,
-			     'spaces=i'            => \$spaces,
-			     'fix-double-quotes'   => \$double_quotes,
-			     'no-header'           => \$no_header,
-			     'help'                => \$help,
-			    );
+sub main {
+    my $doctype = 'section';
+    my $spaces  = 2;
+    my ($title, $double_quotes, $help, $no_header);
 
-pod2usage if     $help;
-pod2usage unless grep { $doctype eq $_ } qw(article chapter
-					    refentry section);
-pod2usage unless $spaces =~ /^\d+$/;
+    pod2usage unless GetOptions ('doctype=s'           => \$doctype,
+                     'title=s'             => \$title,
+                     'spaces=i'            => \$spaces,
+                     'fix-double-quotes'   => \$double_quotes,
+                     'no-header'           => \$no_header,
+                     'help'                => \$help,
+                    );
 
-if (@ARGV == 0) {
-    $title = '' unless defined $title;
-    my $parser = Pod::2::DocBook->new (title => $title,
-				    doctype => $doctype,
-				    fix_double_quotes => $double_quotes,
-				    header => ! $no_header,
-				    spaces => $spaces);
-    $parser->parse_from_filehandle(\*STDIN);
-}
+    pod2usage if     $help;
+    pod2usage unless grep { $doctype eq $_ } qw(article chapter
+                            refentry section);
+    pod2usage unless $spaces =~ /^\d+$/;
 
-else {
-    my ($infile, $outfile) = @ARGV;
-
-    ($title) = $infile =~ m!([^/]+)\z! unless defined $title;
-    my $parser = Pod::2::DocBook->new (title => $title,
-				    doctype => $doctype,
-				    fix_double_quotes => $double_quotes,
-				    header => ! $no_header,
-				    spaces => $spaces);
-
-    if (defined $outfile) {
-	$parser->parse_from_file ($infile, $outfile);
+    if (@ARGV == 0) {
+        $title = '' unless defined $title;
+        my $parser = Pod::2::DocBook->new (title => $title,
+                        doctype => $doctype,
+                        fix_double_quotes => $double_quotes,
+                        header => ! $no_header,
+                        spaces => $spaces);
+        $parser->parse_from_filehandle(\*STDIN);
     }
 
     else {
-	$parser->parse_from_file ($infile);
+        my ($infile, $outfile) = @ARGV;
+
+        ($title) = $infile =~ m!([^/]+)\z! unless defined $title;
+        my $parser = Pod::2::DocBook->new (title => $title,
+                        doctype => $doctype,
+                        fix_double_quotes => $double_quotes,
+                        header => ! $no_header,
+                        spaces => $spaces);
+
+        if (defined $outfile) {
+        $parser->parse_from_file ($infile, $outfile);
+        }
+
+        else {
+        $parser->parse_from_file ($infile);
+        }
     }
 }
-
 
 =head1 NAME
 
