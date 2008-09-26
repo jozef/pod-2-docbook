@@ -15,10 +15,11 @@ exit main();
 sub main {
     my $doctype = 'section';
     my $spaces  = 2;
-    my ($title, $double_quotes, $help, $no_header);
+    my ($title, $double_quotes, $help, $no_header, $base_id);
 
     GetOptions(
         'doctype=s'         => \$doctype,
+        'base-id=s'         => \$base_id,
         'title=s'           => \$title,
         'spaces=i'          => \$spaces,
         'fix-double-quotes' => \$double_quotes,
@@ -30,11 +31,13 @@ sub main {
     pod2usage if none { $doctype eq $_ } qw(article chapter refentry section);
     pod2usage unless $spaces =~ /^\d+$/xms;
 
+    # TODO refactor this if so that there are no the same patterns in each of the branch
     if (@ARGV == 0) {
         $title = q{} unless defined $title;
         my $parser = Pod::2::DocBook->new(
             title             => $title,
             doctype           => $doctype,
+            base_id           => $base_id,
             fix_double_quotes => $double_quotes,
             header            => !$no_header,
             spaces            => $spaces
@@ -44,11 +47,28 @@ sub main {
 
     else {
         my ($infile, $outfile) = @ARGV;
+        
+        # default doctype element id is the name of the input file
+        if (!$base_id) {
+            $base_id = $infile;
+            $base_id =~ tr{/ }{._};
+            $base_id =~ s/[^.A-Za-z_:-]//g;
+            
+        }
+        
+        # check if the id is valid (SEE http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name)
+        # TODO refactor to the function, we will need if also later and some tests will be handfull
+        #      we should also "die" if the base_id is set through the command line parameter
+        if ($base_id !~ m/^[A-Za-z_:] [-A-Za-z0-9_.:]*/xms) {
+            warn 'wrong base_id "', $base_id, '", throwing away';
+            $base_id = undef;
+        }
 
         ($title) = $infile =~ m{([^/]+)\z}xms unless defined $title;
         my $parser = Pod::2::DocBook->new(
             title             => $title,
             doctype           => $doctype,
+            base_id           => $base_id,
             fix_double_quotes => $double_quotes,
             header            => !$no_header,
             spaces            => $spaces
@@ -77,7 +97,9 @@ pod2docbook - Convert POD data to DocBook SGML
 pod2docbook [B<--help>]
 [B<--doctype>=B<article>|B<chapter>|B<section>|B<refentry>]
 [B<--title>=I<title>] S<[B<--spaces>=I<# spaces per indent level>]>
-[B<--fix-double-quotes>] [B<--no-header>] S<[I<infile> [I<outfile>]]>
+[B<--fix-double-quotes>] [B<--no-header>]
+[B<--base-id>=I<idstring>]
+S<[I<infile> [I<outfile>]]>
 
 =head1 DESCRIPTION
 
@@ -128,21 +150,48 @@ STDIN is used for input.
 The name of the file to which to write SGML; if not supplied, STDOUT
 is used for output.
 
+=item [B<--base-id>=I<idstring>]
+
+The root element of the B<--doctype> will have the I<idstring> set for attribute I<id>.
+The default is an input file name "cleaned up" to conform with XML restriction for
+characteds used in id strings. (SEE L<http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name>)
+
 =back
 
 =head1 SEE ALSO
 
-L<perlpod>, L<Pod::2::DocBook>
+L<pod2docbook>, L<perlpod>, L<Pod::DocBook>,
+SVN repo - L<https://cle.sk/repos/pub/cpan/Pod-2-DocBook/>,
+L<http://www.ohloh.net/projects/pod-2-docbook>,
+F<doc/> + F<examples/pod2docbook-docbook/> for Pod::2::DocBook
+DocBook documentation
+
+DocBook related links: L<http://www.docbook.org/>,
+L<http://www.sagehill.net/docbookxsl/>,
+L<http://developers.cogentrts.com/cogent/prepdoc/pd-axfrequentlyuseddocbooktags.html>
 
 =head1 AUTHOR
 
-Nandu Shah <nandu@zvolve.com>
+Alligator Descartes <descarte@symbolstone.org> wrote a module called
+Pod::2::DocBook, which was later maintained by Jan Iven
+<jan.iven@cern.ch>.  That module was based on the original L<pod2html>
+by Tom Christiansen <tchrist@mox.perl.com>.
+
+Nandu Shah <nandu@zvolve.com> wrote Pod::DocBook, which is
+unrelated to the previous module (even though they both perform the
+same function). (L<http://search.cpan.org/~nandu/Pod-DocBook-1.2/>)
+
+Jozef Kutej <jkutej@cpan.org> renamed the module to Pod::2::DocBook
+because Nandus version was buried in the CPAN archive as an
+"UNAUTHORIZED RELEASE".
 
 =head1 COPYRIGHT
 
 Copyright 2004, Nandu Shah <nandu@zvolve.com>
 
-This program is free software; you may redistribute it and/or modify
+Copyright 2008, Jozef Kutej <jkutej@cpan.org>
+
+This library is free software; you may redistribute it and/or modify
 it under the same terms as Perl itself
 
 =cut

@@ -6,11 +6,14 @@ Pod::2::DocBook - Convert Pod data to DocBook SGML
 
 =head1 SYNOPSIS
 
-  use Pod::2::DocBook;
-  my $parser = Pod::2::DocBook->new (title             => 'My Article',
-                                     doctype           => 'article',
-                  fix_double_quotes => 1,
-                  spaces            => 3);
+    use Pod::2::DocBook;
+    my $parser = Pod::2::DocBook->new(
+        title             => 'My Article',
+        doctype           => 'article',
+        base_id           => 'article42'
+        fix_double_quotes => 1,
+        spaces            => 3
+    );
 
   $parser->parse_from_file ('my_article.pod', 'my_article.sgml');
 
@@ -144,7 +147,16 @@ END_HEADER
                      "</refmeta>\n");
     }
     else {
-        print $out_fh "<$parser->{doctype}><title>$parser->{title}</title>\n";
+        print
+            $out_fh
+            '<',
+            $parser->{doctype},
+            ($parser->{base_id} ? ' id="'.$parser->{base_id}.'"' : ()),
+            '><title>',
+            $parser->{title},
+            '</title>',
+            "\n"
+        ;
     }
 }
 
