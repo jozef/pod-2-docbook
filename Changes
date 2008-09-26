@@ -6,6 +6,11 @@
         - added METHODS POD
         - added 00-compile.t, distribution.t, pod-coverage.t, pod-spell.t,
           pod.t, signature.t
+        - docbook in examples/
+        - "refnamediv>" xml typo fixed (yanick)
+        - code cleanup (yanick, jk)
+        - no more duplicated id-s (yanick)
+        - added --base-id option for setting the id of the base element of generated xml
 
     * 0.01 Tue 10 Jun 2008
         - Applied patches for =for blocks from Perl Training Australia's

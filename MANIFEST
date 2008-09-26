@@ -63,10 +63,14 @@ t/indent.pod
 t/indent.sgml
 t/lists.pod
 t/lists.sgml
+t/make_id.t
 t/no_header.pod
 t/no_header.sgml
 t/paragraphs.pod
 t/paragraphs.sgml
+t/perlcritic.t
+t/perlcriticrc
+t/perltidy.conf
 t/Pod-2-DocBook.t
 t/pod-coverage.t
 t/pod-spell.t
@@ -76,4 +80,3 @@ t/signature.t
 t/table.pod
 t/table.sgml
 t/valid_xml.t
-t/make_id.t
