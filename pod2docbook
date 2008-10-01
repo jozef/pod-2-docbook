@@ -6,7 +6,7 @@ use warnings;
 our $VERSION = '0.01';
 
 use Getopt::Long;
-use Pod::2::DocBook;
+use Pod::2::DocBook 0.02;
 use Pod::Usage;
 use List::MoreUtils 'none';
 
