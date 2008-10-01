@@ -8,7 +8,7 @@
        Text::ParseWords v3.21
        Text::Wrap v2001.09291
 -->
-<section><title>e_escape.pod</title>
+<section id="e_escape.pod"><title>e_escape.pod</title>
   <para>
     E< >
   </para>

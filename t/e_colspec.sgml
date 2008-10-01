@@ -8,7 +8,7 @@
        Text::ParseWords v3.21
        Text::Wrap v2001.09291
 -->
-<section><title>e_colspec.pod</title>
+<section id="e_colspec.pod"><title>e_colspec.pod</title>
   <table>
     <title>Sample Table</title>
     <tgroup cols="3">

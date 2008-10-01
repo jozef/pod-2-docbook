@@ -9,7 +9,7 @@
        Text::ParseWords v3.24
        Text::Wrap v2005.082401
 -->
-<section><title>lists.pod</title>
+<section id="lists.pod"><title>lists.pod</title>
   <para>
     <itemizedlist>
       <listitem>
@@ -211,7 +211,7 @@
   <para>
     <variablelist>
       <varlistentry>
-        <term><anchor id="ID-4d88194680ea9fb54f0ff7f3a3041474" />The first</term>
+        <term><anchor id="lists.pod:The_first" />The first</term>
         <listitem>
           <para>
 	    First item
@@ -219,7 +219,7 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><anchor id="ID-329f452c732355c3ee1b46dccad30851" />The second</term>
+        <term><anchor id="lists.pod:The_second" />The second</term>
         <listitem>
           <para>
 	    Second item
@@ -227,7 +227,7 @@
           <para>
             <variablelist>
               <varlistentry>
-                <term><anchor id="ID-fc6d03982e718e8b4d109d380251bbff" />The first under the second</term>
+                <term><anchor id="lists.pod:The_first_under_the_second" />The first under the second</term>
                 <listitem>
                   <para>
 		    First sub-item under the second item
@@ -235,7 +235,7 @@
                 </listitem>
               </varlistentry>
               <varlistentry>
-                <term><anchor id="ID-fc2b02b5af154d0d72e9c5c725dd905f" />The second under the second</term>
+                <term><anchor id="lists.pod:The_second_under_the_second" />The second under the second</term>
                 <listitem>
                   <para>
 		    Second sub-item under the second item
@@ -247,7 +247,7 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><anchor id="ID-24ca204b0c539dd58369eb62f4717fb6" />The third</term>
+        <term><anchor id="lists.pod:The_third" />The third</term>
         <listitem>
           <para>
 	    Third item

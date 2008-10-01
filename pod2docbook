@@ -49,21 +49,8 @@ sub main {
         my ($infile, $outfile) = @ARGV;
         
         # default doctype element id is the name of the input file
-        if (!$base_id) {
-            $base_id = $infile;
-            $base_id =~ tr{/ }{._};
-            $base_id =~ s/[^.A-Za-z_:-]//g;
-            
-        }
+        $base_id ||= $infile;
         
-        # check if the id is valid (SEE http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name)
-        # TODO refactor to the function, we will need if also later and some tests will be handfull
-        #      we should also "die" if the base_id is set through the command line parameter
-        if ($base_id !~ m/^[A-Za-z_:] [-A-Za-z0-9_.:]*/xms) {
-            warn 'wrong base_id "', $base_id, '", throwing away';
-            $base_id = undef;
-        }
-
         ($title) = $infile =~ m{([^/]+)\z}xms unless defined $title;
         my $parser = Pod::2::DocBook->new(
             title             => $title,

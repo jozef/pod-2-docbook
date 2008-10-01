@@ -8,7 +8,7 @@
        Text::ParseWords v3.21
        Text::Wrap v2001.09291
 -->
-<section><title>paragraphs.pod</title>
+<section id="paragraphs.pod"><title>paragraphs.pod</title>
   <para>
     This is an ordinary paragraph.
   </para>

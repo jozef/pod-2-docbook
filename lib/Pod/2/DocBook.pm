@@ -102,6 +102,10 @@ sub initialize {
 
     $parser->{title}  ||= q{};
     $parser->{spaces} ||= 0;
+   
+    # if base_id not set, put title as base_id or a random number in worst case
+    $parser->{base_id} ||= $parser->{title} || ':'.int(rand(9e10)+10e10);
+    $parser->{base_id} = cleanup_id($parser->{base_id});
 }
 
 =head2 begin_pod()
@@ -572,18 +576,57 @@ sub _current_indent {
     return ' ' x ($parser->{spaces} * $parser->{indentlevel});
 }
 
-sub _make_id {
+=head2 make_id($text)
+
+Function will construct an element id string. Id string is composed of
+C<< join (':', $parser->{base_id}, $text) >>, where C<$text> in most cases
+is the pod heading text.
+
+The xml id string has strict format. Checkout L</"cleanup_id"> function for
+specification.
+
+=cut
+
+sub make_id {
+    my $parser  = shift;
+    my $text    = shift;
+    my $base_id = $parser->{base_id};
+    
+    # trim text spaces
+    $text    =~ s/^\s*//;$text    =~ s/\s*$//;
+    $base_id =~ s/^\s*//;$base_id =~ s/\s*$//;
+    
+    return cleanup_id(join (':', $base_id, $text));
+}
+
+
+=head2 make_uniq_id($text)
+
+Calls C<< $parser->make_id($text) >> and checks if such id was already
+generated. If so, generates new one by adding _i1 (or _i2, i3, ...) to the id
+string. Return value is new uniq id string.
+
+=cut
+
+sub make_uniq_id {
     my $parser = shift;
-    my $string = join '-',
-      $parser->{doctype},
-      $parser->{title},
-      $_[0],
-      ++$parser->{section_instance};
-
-    $string =~ s/<!\[CDATA\[(.+?)\]\]>/$1/g;
-    $string =~ s/<.+?>//g;
-
-    return 'ID-' . md5_hex($string);
+    my $id_string = $parser->make_id(@_);
+    
+    # prevent duplicate ids
+    my $ids_used = $parser->{'ids_used'} || {};
+    while (exists $ids_used->{$id_string}) {
+        if ($id_string =~ m/_i(\d+)$/) {
+            my $last_used_id_index = $1;
+            substr($id_string, -1*length($last_used_id_index)) = $last_used_id_index + 1;
+        }
+        else {
+            $id_string .= '_i1';
+        }
+    }
+    $ids_used->{$id_string} = 1;
+    $parser->{'ids_used'} = $ids_used;
+    
+    return $id_string;
 }
 
 sub _handle_L {
@@ -612,7 +655,7 @@ sub _handle_L {
 
     # types 'man' and 'pod' are handled the same way
     if (defined $section && !defined $name) {
-        my $id = $parser->_make_id($section);
+        my $id = $parser->make_id($section);
 
         $section = $text if defined $text;
         return (qq!<link\37632\377linkend="$id"><quote>$section!
@@ -679,7 +722,7 @@ sub _handle_head {
     }
     else {
         push @{ $parser->{'Pod::2::DocBook::state'} }, "$command+";
-        my $id = $parser->_make_id($paragraph);
+        my $id = $parser->make_uniq_id($paragraph);
 
         if ($parser->{doctype} eq 'refentry') {
             print $out_fh $parser->_indent(),
@@ -740,7 +783,7 @@ sub _handle_item {
             $state = 'olist+';
         }
         else {
-            my $id = $parser->_make_id($paragraph);
+            my $id = $parser->make_uniq_id($paragraph);
             print $out_fh join('',
                 $parser->_indent(),
                 "<para>\n",
@@ -762,7 +805,7 @@ sub _handle_item {
         $state = "$state+" unless $state =~ /\+$/;
     }
     elsif ($state =~ /^vlist/) {
-        my $id = $parser->_make_id($paragraph);
+        my $id = $parser->make_uniq_id($paragraph);
         print $out_fh join('',
             $parser->_outdent(),
             "</listitem>\n",
@@ -1060,6 +1103,46 @@ sub _fix_chars {
     $paragraph =~ s!\376(\d+)\377!pack ('C', $1)!eg;
 
     return $paragraph;
+}
+
+=head2 cleanup_id($id_string)
+
+This function is used internally to remove/change any illegal characters
+from the elements id string. (see http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name
+for the id string specification)
+
+    $id_string =~ s/<!\[CDATA\[(.+?)\]\]>/$1/g;   # keep just inside of CDATA
+    $id_string =~ s/<.+?>//g;                     # remove tags
+    $id_string =~ s/^\s*//;                       # ltrim spaces
+    $id_string =~ s/\s*$//;                       # rtrim spaces
+    $id_string =~ tr{/ }{._};                     # replace / with . and spaces with _
+    $id_string =~ s/[^\-_a-zA-Z0-9\.: ]//g;       # closed set of characters allowed in id string
+
+In the worst case when the C<$id_string> after clean up will not conform with
+the specification, warning will be printed out and random number with leading colon
+will be used.
+
+=cut
+
+sub cleanup_id {
+    my $id_string = shift;
+    
+    $id_string =~ s/<!\[CDATA\[(.+?)\]\]>/$1/g;   # keep just inside of CDATA
+    $id_string =~ s/<.+?>//g;                     # remove tags
+    $id_string =~ s/^\s*//;                       # ltrim spaces
+    $id_string =~ s/\s*$//;                       # rtrim spaces
+    $id_string =~ tr{/ }{._};                     # replace / with . and spaces with _
+    $id_string =~ s/[^\-_a-zA-Z0-9\.: ]//g;       # closed set of characters allowed in id string
+
+    # check if the id string is valid (SEE http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name)
+    # TODO refactor to the function, we will need if also later and some tests will be handfull
+    #      we should also "die" if the base_id is set through the command line parameter
+    if ($id_string !~ m/^[A-Za-z_:] [-A-Za-z0-9_.:]*/xms) {
+        $id_string = ':'.int(rand(9e10)+10e10);
+        warn 'wrong xml id string "', $id_string, '", throwing away and using ', $id_string, ' instead!';
+    }
+    
+    return $id_string;
 }
 
 1;

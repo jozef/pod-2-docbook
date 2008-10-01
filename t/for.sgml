@@ -9,6 +9,6 @@
        Text::ParseWords v3.2
        Text::Wrap v2001.0131
 -->
-<section><title>for.pod</title>
+<section id="for.pod"><title>for.pod</title>
 <emphasis>This is important.</emphasis>
 </section>

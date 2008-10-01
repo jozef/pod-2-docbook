@@ -8,7 +8,7 @@
        Text::ParseWords v3.21
        Text::Wrap v2001.09291
 -->
-<section><title>docbook.pod</title>
+<section id="docbook.pod"><title>docbook.pod</title>
   <para>
     Text before
   </para>

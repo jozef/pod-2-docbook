@@ -9,7 +9,7 @@
        Text::ParseWords v3.24
        Text::Wrap v2005.082401
 -->
-<section><title>formatting_codes.pod</title>
+<section id="formatting_codes.pod"><title>formatting_codes.pod</title>
   <para>
     <emphasis role="italic">text</emphasis>
   </para>
@@ -36,8 +36,7 @@
     </citerefentry>
   </para>
   <para>
-    <link
-    linkend="ID-e2909816a0d15fe2111962557aaa89b2"><quote>sec</quote></link>
+    <link linkend="formatting_codes.pod:sec"><quote>sec</quote></link>
   </para>
   <para>
     text
@@ -46,8 +45,7 @@
     text
   </para>
   <para>
-    <link
-    linkend="ID-ad783ccf59d1f2b37335e66f88fd8c3f"><quote>text</quote></link>
+    <link linkend="formatting_codes.pod:sec"><quote>text</quote></link>
   </para>
   <para>
     <ulink url="scheme:...">scheme:...</ulink>
