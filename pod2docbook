@@ -31,7 +31,8 @@ sub main {
     pod2usage if none { $doctype eq $_ } qw(article chapter refentry section);
     pod2usage unless $spaces =~ /^\d+$/xms;
 
-    # TODO refactor this if so that there are no the same patterns in each of the branch
+    # TODO refactor this if so that there are no the same patterns in each of
+    #      the branch
     if (@ARGV == 0) {
         $title = q{} unless defined $title;
         my $parser = Pod::2::DocBook->new(
@@ -44,13 +45,12 @@ sub main {
         );
         $parser->parse_from_filehandle(\*STDIN);
     }
-
     else {
         my ($infile, $outfile) = @ARGV;
-        
+
         # default doctype element id is the name of the input file
         $base_id ||= $infile;
-        
+
         ($title) = $infile =~ m{([^/]+)\z}xms unless defined $title;
         my $parser = Pod::2::DocBook->new(
             title             => $title,
