@@ -83,7 +83,7 @@ use List::MoreUtils 'any';
 =cut
 
 use base 'Pod::Parser';
-our $VERSION = '0.02_03';
+our $VERSION = '0.02';
 
 my $SPACE        = q{ };
 my $DOUBLE_QUOTE = q{"};
