@@ -32,6 +32,7 @@ META.yml
 pod2docbook
 README
 t/00-compile.t
+t/02-Pod-2-DocBook-make_id.t
 t/distribution.t
 t/docbook.pod
 t/docbook.sgml

@@ -82,7 +82,7 @@ use Text::Wrap;
 =cut
 
 our @ISA     = qw(Pod::Parser);
-our $VERSION = '0.02_02';
+our $VERSION = '0.02_03';
 
 #----------------------------------------------------------------------
 # overridden Pod::Parser methods

@@ -11,6 +11,7 @@
         - code cleanup (yanick, jk)
         - no more duplicated id-s (yanick)
         - added --base-id option for setting the id of the base element of generated xml
+        - element id strings generated from base-id and the name of the pod heading
 
     * 0.01 Tue 10 Jun 2008
         - Applied patches for =for blocks from Perl Training Australia's
