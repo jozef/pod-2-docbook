@@ -1,6 +1,10 @@
 #------------------------------------------------------------------------------
 
 severity = 1
+verbose  = %f: %m at line %l.  %e.  (Severity: %s)\n %p near '%r'\n
+
+# PPI doesn't like the ::2:: ... + 2x TODO for the future...
+exclude = Modules::RequireFilenameMatchesPackage ControlStructures::ProhibitCascadingIfElse Subroutines::ProhibitExcessComplexity
 
 #------------------------------------------------------------------------------
 
