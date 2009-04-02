@@ -27,6 +27,14 @@ my $builder = Module::Build->new(
     create_makefile_pl  => 'traditional',
     create_readme       => 1,
     sign                => 1,
+    meta_merge => {
+        resources => {
+            repository => 'git://github.com/jozef/pod-2-docbook.git',
+            bugtracker =>
+            'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Pod-2-DocBook',
+        },
+        keywords => [ qw/ pod docbook / ],
+    },
 );
 
 $builder->create_build_script();
