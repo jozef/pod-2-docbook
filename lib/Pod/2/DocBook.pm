@@ -12,7 +12,8 @@ Pod::2::DocBook - Convert Pod data to DocBook SGML
         doctype           => 'article',
         base_id           => 'article42'
         fix_double_quotes => 1,
-        spaces            => 3
+        spaces            => 3,
+        id_version        => 2,
     );
 
   $parser->parse_from_file ('my_article.pod', 'my_article.sgml');
@@ -104,9 +105,10 @@ sub initialize {
     $parser->errorsub('error_msg');
     $parser->{'Pod::2::DocBook::errors'} = [];
 
-    $parser->{title}  ||= q{};
-    $parser->{spaces} ||= 0;
-   
+    $parser->{title}      ||= q{};
+    $parser->{spaces}     ||= 0;
+    $parser->{id_version} ||= 1;
+    
     # if base_id not set, put title as base_id or a random number in worst case
     $parser->{base_id} ||= $parser->{title} || q{:}._big_random_number();
     $parser->{base_id} = cleanup_id($parser->{base_id});
@@ -601,9 +603,18 @@ sub _current_indent {
 
 =head2 make_id($text)
 
+default id format -
+
 Function will construct an element id string. Id string is composed of
 C<< join (':', $parser->{base_id}, $text) >>, where C<$text> in most cases
 is the pod heading text.
+
+version 2 id format -
+
+having ':' in id was not a best choice. (Xerces complains - Attribute value
+"lib.Moose.Manual.pod:NAME" of type ID must be an NCName when namespaces are
+enabled.) To not break backwards compatibity switch with F<<id_version => 2>> in
+constructor for using '-' instead.
 
 The xml id string has strict format. Checkout L</"cleanup_id"> function for
 specification.
@@ -619,6 +630,9 @@ sub make_id {
     $text    =~ s/^\s*//xms;$text    =~ s/\s*$//xms;
     $base_id =~ s/^\s*//xms;$base_id =~ s/\s*$//xms;
     
+    return cleanup_id(join ('-', $base_id, $text))
+        if $parser->{'id_version'} == 2;
+
     return cleanup_id(join (':', $base_id, $text));
 }
 
@@ -1171,6 +1185,7 @@ sub cleanup_id {
     $id_string =~ s/\s*$//xms;                    # rtrim spaces
     $id_string =~ tr{/ }{._};                     # replace / with . and spaces with _
     $id_string =~ s/[^\-_a-zA-Z0-9\.:\s]//gxms;   # closed set of characters allowed in id string
+    $id_string =~ s/^[^A-Za-z_:]+//xms;           # remove invalid leading characters
 
     # check if the id string is valid (SEE http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name)
     # TODO refactor to the function, we will need if also later and some tests will be handfull
