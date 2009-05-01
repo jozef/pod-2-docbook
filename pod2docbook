@@ -15,7 +15,7 @@ exit main();
 sub main {
     my $doctype = 'section';
     my $spaces  = 2;
-    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version, $parse_title);
+    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version, $parse_title, $skip);
 
     GetOptions(
         'doctype=s'         => \$doctype,
@@ -27,6 +27,7 @@ sub main {
         'help'              => \$help,
         'id-version=i'      => \$id_version,
         'parse-title'       => \$parse_title,
+        'skip=s'            => \$skip,
     ) or pod2usage();
 
     pod2usage if $help;
@@ -45,6 +46,7 @@ sub main {
             header            => !$no_header,
             spaces            => $spaces,
             id_version        => $id_version,
+            skip              => $skip,
         );
         $parser->parse_from_filehandle(\*STDIN);
     }
@@ -66,6 +68,7 @@ sub main {
             header            => !$no_header,
             spaces            => $spaces,
             id_version        => $id_version,
+            skip              => $skip,
         );
 
         if (defined $outfile) {

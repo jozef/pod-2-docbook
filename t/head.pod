@@ -14,6 +14,10 @@ Contents of section 1.1
 
 Contents of section 2
 
+=head2 SKIP
+
+Contents to be skipped
+
 =head2 2.1
 
 Contents of section 2.1
@@ -21,6 +25,10 @@ Contents of section 2.1
 =head4 2.1.1
 
 Contents of section 2.1.1
+
+=head4 SKIP2
+
+Contents to be skipped
 
 =head3 2.2
 

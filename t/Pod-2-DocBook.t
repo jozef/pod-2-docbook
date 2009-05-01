@@ -20,11 +20,14 @@ my @samples = qw(head paragraphs indent lists docbook table formatting_codes
 		 for);
 
 foreach my $name (@samples) {
-    my $parser = Pod::2::DocBook->new (doctype           => 'section',
-				    title             => "$name.pod",
-				    fix_double_quotes => 1,
-				    header            => 1,
-				    spaces            => 2);
+    my $parser = Pod::2::DocBook->new (
+		doctype           => 'section',
+		title             => "$name.pod",
+		fix_double_quotes => 1,
+		header            => 1,
+		spaces            => 2,
+		skip              => 'SKIP, SKIP2'
+	);
 
     $parser->parse_from_file ("t/$name.pod", "t/test-$name.out");
 

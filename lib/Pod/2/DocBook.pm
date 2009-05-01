@@ -108,6 +108,10 @@ sub initialize {
     $parser->{title}      ||= q{};
     $parser->{spaces}     ||= 0;
     $parser->{id_version} ||= 1;
+    my $skip = $parser->{skip};
+    $parser->{skip}       = [];
+    push @{$parser->{skip}}, split(/\s*,\s*/, $skip || '')
+        if $parser->{skip};
     
     # if base_id not set, put title as base_id or a random number in worst case
     $parser->{base_id} ||= $parser->{title} || q{:}._big_random_number();
@@ -204,6 +208,16 @@ sub command {
     my $out_fh = $parser->output_handle();
 
     return if $command eq 'pod';
+    
+    # check if we need to skip this heading
+    if ($command =~ /^head[1-4]/xms) {
+        $parser->{'skip_current'} = (
+            (any { $paragraph =~ m/^$_/  } @{$parser->{'skip'}})
+            ? 1
+            : 0
+        );
+    }
+    return if $parser->{'skip_current'};
 
     $paragraph =~ s/\s+$//sx;
     $paragraph = $parser->interpolate($paragraph, $line_num);
@@ -385,7 +399,8 @@ sub textblock {
         }
     }
 
-    print $out_fh $para_out;
+    print $out_fh $para_out
+        if not $parser->{'skip_current'};
     
     return;
 }
@@ -402,6 +417,8 @@ sub verbatim {
     my $state = pop @{ $parser->{'Pod::2::DocBook::state'} } || q{};
     my @lines;
     my $min_leader;
+
+    return if $parser->{'skip_current'};
 
     $paragraph =~ s/\s+$//sx unless $state eq 'begin docbook';
 
