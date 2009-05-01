@@ -15,7 +15,7 @@ exit main();
 sub main {
     my $doctype = 'section';
     my $spaces  = 2;
-    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version);
+    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version, $parse_title);
 
     GetOptions(
         'doctype=s'         => \$doctype,
@@ -26,6 +26,7 @@ sub main {
         'no-header'         => \$no_header,
         'help'              => \$help,
         'id-version=i'      => \$id_version,
+        'parse-title'       => \$parse_title,
     ) or pod2usage();
 
     pod2usage if $help;
@@ -53,7 +54,10 @@ sub main {
         # default doctype element id is the name of the input file
         $base_id ||= $infile;
 
+        $title = parse_title($infile)
+            if $parse_title;
         ($title) = $infile =~ m{([^/]+)\z}xms unless defined $title;
+        
         my $parser = Pod::2::DocBook->new(
             title             => $title,
             doctype           => $doctype,
@@ -74,6 +78,35 @@ sub main {
     }
 
     return 0;
+}
+
+sub parse_title {
+    my $filename = shift;
+    
+    open(my $fh, '<', $filename) or die 'failed to open "'.$filename.'"';
+    
+    my $in_name = 0;
+    my $line;
+    while ($line = <$fh>) {
+        # skip empty lines
+        next if $line =~ m/^\s*$/;
+        
+        # we have the title, it's the first text line inside "=head1 NAME"
+        last
+            if ($in_name);
+        
+        # found "=head1 NAME"
+        $in_name = 1
+            if $line =~ m/^=head1 \s+ NAME/xmsi;
+    }
+    
+    close($filename);
+    
+    chomp($line);
+    return $line
+        if $line !~ m/^[^-]+-\s+(.+)$/;
+    
+    return $1;
 }
 
 __END__
