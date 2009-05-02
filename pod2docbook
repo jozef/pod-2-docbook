@@ -3,19 +3,20 @@
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 use Getopt::Long;
 use Pod::2::DocBook 0.03;
 use Pod::Usage;
 use List::MoreUtils 'none';
+use CPAN::Version;
 
 exit main();
 
 sub main {
     my $doctype = 'section';
     my $spaces  = 2;
-    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version, $parse_title, $skip);
+    my ($title, $double_quotes, $help, $no_header, $base_id, $id_version, $parse_title, $skip, $min_version);
 
     GetOptions(
         'doctype=s'         => \$doctype,
@@ -28,11 +29,15 @@ sub main {
         'id-version=i'      => \$id_version,
         'parse-title'       => \$parse_title,
         'skip=s'            => \$skip,
+        'min-version=s'     => \$min_version,
     ) or pod2usage();
 
     pod2usage if $help;
     pod2usage if none { $doctype eq $_ } qw(article chapter refentry section);
     pod2usage unless $spaces =~ /^\d+$/xms;
+    
+    die 'version "'.$min_version.'" required, this is just "'.$VERSION.'"'."\n"
+        if ($min_version and CPAN::Version->vlt($VERSION, $min_version));
 
     # TODO refactor this if so that there are no the same patterns in each of
     #      the branch

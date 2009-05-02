@@ -14,6 +14,7 @@ my $builder = Module::Build->new(
         'Text::ParseWords' => 0,
         'Text::Wrap'       => 0,
         'List::MoreUtils'  => 0,
+        'CPAN::Version'    => 0,
     },
     build_requires => {
         'Test::More'  => 0,
