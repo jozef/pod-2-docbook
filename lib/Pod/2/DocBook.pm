@@ -84,7 +84,7 @@ use List::MoreUtils 'any';
 =cut
 
 use base 'Pod::Parser';
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my $SPACE        = q{ };
 my $DOUBLE_QUOTE = q{"};
@@ -115,7 +115,7 @@ sub initialize {
     
     # if base_id not set, put title as base_id or a random number in worst case
     $parser->{base_id} ||= $parser->{title} || q{:}._big_random_number();
-    $parser->{base_id} = cleanup_id($parser->{base_id});
+    $parser->{base_id} = $parser->cleanup_id($parser->{base_id});
     
     return;
 }
@@ -217,7 +217,6 @@ sub command {
             : 0
         );
     }
-    return if $parser->{'skip_current'};
 
     $paragraph =~ s/\s+$//sx;
     $paragraph = $parser->interpolate($paragraph, $line_num);
@@ -245,6 +244,8 @@ sub command {
 
     if ($command =~ /^head[1-4]/xms) {
         $parser->_transition($command);
+        
+        return if $parser->{'skip_current'};
         $parser->_handle_head($command, $paragraph, $line_num);
     }
     elsif ($command eq 'begin') {
@@ -288,6 +289,8 @@ sub textblock {
 
     $state = q{} unless defined $state;
     $paragraph =~ s/\s+$//xms unless $state eq 'begin docbook';
+
+    $paragraph =~ s/&/&amp;/xmsg unless $state eq 'begin docbook';
 
     unless ($state eq 'begin docbook' || $state eq 'begin table') {
         $paragraph = $parser->interpolate($paragraph, $line_num);
@@ -647,10 +650,10 @@ sub make_id {
     $text    =~ s/^\s*//xms;$text    =~ s/\s*$//xms;
     $base_id =~ s/^\s*//xms;$base_id =~ s/\s*$//xms;
     
-    return cleanup_id(join ('-', $base_id, $text))
+    return $parser->cleanup_id(join ('-', $base_id, $text))
         if $parser->{'id_version'} == 2;
 
-    return cleanup_id(join (':', $base_id, $text));
+    return $parser->cleanup_id(join (':', $base_id, $text));
 }
 
 
@@ -705,6 +708,10 @@ sub _handle_L {
     # are de-protected in _fix_chars ()
 
     my ($text, $inferred, $name, $section, $type) = parselink($argument);
+    $inferred =~ s/&/&amp;/xmsg
+        if $inferred;
+    $name     =~ s/&/&amp;/xmsg
+        if $name;
 
     return qq!<ulink\37632\377url="$inferred">$inferred</ulink>!
       if $type eq 'url';
@@ -1194,6 +1201,7 @@ will be used.
 =cut
 
 sub cleanup_id {
+    my $parser    = shift;
     my $id_string = shift;
     
     $id_string =~ s/<!\[CDATA\[(.+?)\]\]>/$1/gxms;# keep just inside of CDATA
@@ -1201,8 +1209,10 @@ sub cleanup_id {
     $id_string =~ s/^\s*//xms;                    # ltrim spaces
     $id_string =~ s/\s*$//xms;                    # rtrim spaces
     $id_string =~ tr{/ }{._};                     # replace / with . and spaces with _
-    $id_string =~ s/[^\-_a-zA-Z0-9\.:\s]//gxms;   # closed set of characters allowed in id string
+    $id_string =~ s/[^\-_a-zA-Z0-9\.:]//gxms;     # closed set of characters allowed in id string
     $id_string =~ s/^[^A-Za-z_:]+//xms;           # remove invalid leading characters
+    $id_string =~ s/:/_/xmsg                      # remove : in ids version 2
+        if $parser->{'id_version'} == 2;
 
     # check if the id string is valid (SEE http://www.w3.org/TR/2000/REC-xml-20001006#NT-Name)
     # TODO refactor to the function, we will need if also later and some tests will be handfull
@@ -1211,7 +1221,7 @@ sub cleanup_id {
         $id_string = q{:}._big_random_number();
         warn 'wrong xml id string "', $id_string, '", throwing away and using ', $id_string, ' instead!', "\n";
     }
-    
+
     return $id_string;
 }
 

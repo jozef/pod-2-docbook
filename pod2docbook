@@ -6,7 +6,7 @@ use warnings;
 our $VERSION = '0.01';
 
 use Getopt::Long;
-use Pod::2::DocBook 0.02;
+use Pod::2::DocBook 0.03;
 use Pod::Usage;
 use List::MoreUtils 'none';
 
@@ -106,6 +106,13 @@ sub parse_title {
     close($filename);
     
     chomp($line);
+    
+    # remove formating codes from title and xml characters
+    $line =~ s/[IBCLEFSXZ]<(.*)>/$1/xmsg;
+    $line =~ s/&/&amp;/;
+    $line =~ s/</&lt;/;
+    $line =~ s/>/&gt;/;
+    
     return $line
         if $line !~ m/^[^-]+-\s+(.+)$/;
     

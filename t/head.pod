@@ -37,3 +37,14 @@ Contents of section 2.2
 =head1 3
 
 Contents of section 3
+
+=head1 SKIP
+
+Contents to be skipped
+
+=begin testing
+
+
+=end testing
+
+=cut
