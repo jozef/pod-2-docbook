@@ -434,16 +434,28 @@ sub verbatim {
         # find the minimum-length whitespace leader for this paragraph
         my ($leader) = ($line =~ /^(\s+)/xms);
         $leader ||= q{};
-        
+
         $min_leader = length($leader)
-            if ((not defined $min_leader) or (length($leader) < $min_leader));
+            if ((not defined $min_leader) or ($leader and length($leader) < $min_leader));
+
+        if ($state eq 'verbatim') {
+            if (defined $parser->{'Pod::2::DocBook::verbatim_prev_min_leader'}) {
+                if ($min_leader > $parser->{'Pod::2::DocBook::verbatim_prev_min_leader'}) {
+                    $min_leader = $parser->{'Pod::2::DocBook::verbatim_prev_min_leader'};
+                }
+            }
+            else {
+                $parser->{'Pod::2::DocBook::verbatim_prev_min_leader'} = $min_leader;
+            }
+        }
+    }
+
+    # strip the minimum-length whitespace leader from every line
+    if ($min_leader) {
+        s/^\s{$min_leader}// for @lines;
     }
 
     $paragraph = join("\n", @lines);
-
-    # strip the minimum-length whitespace leader from every line
-    $paragraph =~ s/^\s{$min_leader}//gxms
-        if $min_leader;
 
     if (!defined $state) {
         print $out_fh $parser->_current_indent(), "<screen><![CDATA[$paragraph";
@@ -811,6 +823,7 @@ sub _handle_item {
         print $out_fh "]]></screen>\n";
         $state = pop @{ $parser->{'Pod::2::DocBook::state'} };
         $state = q{} unless defined $state;
+        $parser->{'Pod::2::DocBook::verbatim_prev_min_leader'} = undef;
     }
 
     if ($state =~ /list\+$/xms) {
